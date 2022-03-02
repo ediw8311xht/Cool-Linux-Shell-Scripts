@@ -1,0 +1,11 @@
+#!/bin/bash
+
+ufw reset
+ufw allow in 	"WWW Secure"
+ufw allow in 	"DNS"
+ufw allow out 	"WWW Secure"
+ufw allow out 	"DNS"
+ufw allow in	9050
+ufw allow out 	9050
+ufw reload
+ufw enable
