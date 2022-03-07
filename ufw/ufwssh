@@ -1,6 +1,8 @@
 #!/bin/bash
 
 ufw reset
+ufw default deny outgoing
+ufw default deny incoming
 ufw allow in 	"WWW Secure"
 ufw allow in 	"DNS"
 ufw allow out 	"WWW Secure"
