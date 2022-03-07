@@ -2,12 +2,14 @@
 
 ufw reset
 ufw allow in 	"WWW Secure"
+ufw allow in 	"WWW"
 ufw allow in 	"DNS"
-ufw allow out 	"WWW Secure"
-ufw allow out 	"DNS"
 ufw allow in	"SSH"
-ufw allow out	"SSH"
 ufw allow in	9050
+
+ufw allow out 	"WWW Secure"
+ufw allow out 	"WWW"
+ufw allow out 	"DNS"
+ufw allow out	"SSH"
 ufw allow out 	9050
-ufw reload
 ufw enable

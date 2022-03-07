@@ -7,6 +7,9 @@ ufw default deny incoming
 ufw default allow outgoing
 #idk deluge randomizes port between these ranges at default, so I am too 
 #then passing to deluge make sure to unset random port on deluge for incoming
+#SUSER="$(sudo env | grep -Po "(?<=SUDO_USER=).*")"
+USERHOME="/home/${SUDO_USER}"
+
 port="$(shuf -i "49152-65525" --head-count="1" )"
 if [[ "$#" -gt 0 ]] && [[ -n "$1" ]] ; then
 	port="$1"
@@ -15,7 +18,7 @@ fi
 ufw allow in "$port"; sleep 2
 
 #--------lets find line numbers of core config where listen port is set-#
-deconf="$HOME/.config/deluge/core.conf"
+deconf="$USERHOME/.config/deluge/core.conf"
 if [[ "$#" -gt 1 ]] && [[ -f "$2" ]] ; then deconf="$2"; fi
 
 sline="$(grep -no "listen_ports" "${deconf}" | grep -Po "[0-9][0-9]+")"
