@@ -2,52 +2,41 @@
 
 ufw reset
 ufw default deny incoming
-#deluge uses a bunch of random ports for outgoing
-#you can change to just use one, but it will probably be slower
 ufw default allow outgoing
-#idk deluge randomizes port between these ranges at default, so I am too 
-#then passing to deluge make sure to unset random port on deluge for incoming
-#SUSER="$(sudo env | grep -Po "(?<=SUDO_USER=).*")"
+
+#--------------------------------MODIFYING-PORT-NUMBER--------------------------------------------------------#
 USERHOME="/home/${SUDO_USER}"
-
-port="$(shuf -i "49152-65525" --head-count="1" )"
-if [[ "$#" -gt 0 ]] && [[ -n "$1" ]] ; then
-	port="$1"
-fi
-
-ufw allow in "$port"; sleep 2
-
-#--------lets find line numbers of core config where listen port is set-#
-deconf="$USERHOME/.config/deluge/core.conf"
-if [[ "$#" -gt 1 ]] && [[ -f "$2" ]] ; then deconf="$2"; fi
-
+deconf="$USERHOME/.config/deluge/core.conf"; if [[ "$#" -gt 0 ]] && [[ -f "$1" ]] ; then deconf="$1"; fi
 sline="$(grep -no "listen_ports" "${deconf}" | grep -Po "[0-9][0-9]+")"
+#deluge randomizes port between these ranges at default, this program mimics that
+#so you can have random port and only enable that one port for listening in firewall
+port="$(shuf -i "49152-65525" --head-count="1" )" ; if [[ "$#" -gt 1 ]] && [[ -n "$2" ]] ; then port="$2"; fi
+
+ufw allow in "$port"; sleep 1
+
 echo $'\n'; sleep 0.5
 echo "CONFIG FILE TO WRITE TO: ${deconf}"; sleep 1
 echo "PORT # TO SET AS LISTEN: ${port}"; sleep 1
 
-sl1="$(("$sline" + 1))"; sl2="$(("$sline" + 2))"
-#--------make sure right lines, then change-----------------------------#
-
 echo $'\n'; sleep 0.5
-echo "---ARE THESE THE CORRECT LINES OF THE LISTEN PORTS---"; sleep 2
-echo "$(sed -n "${sl1}p" "${deconf}")"; sleep 1
-echo "$(sed -n "${sl2}p" "${deconf}")"; sleep 0.5
-
+echo "---ARE THESE LINES CORRECT TO REPLACE WITH NEW LISTEN PORT?---"; sleep 1
+sed -n "${sline},$((${sline} + 3))p" "${deconf}"; sleep 0.5
 a=""; read -p "-----------(Y/n)-> " a
 
 echo $'\n'; sleep 0.5
 
-if [ "$a" != "Y" ] ; then
-	echo "You indicated those were the incorrect lines, you will have to modify them manually";
-	sleep 0.5
+if [[ "$a" = "Y" ]] || [[ "$a" = "y" ]] || [[ "$a"  = "yes" ]] || [[ "$a"  = "Yes" ]] || [[ -z "$a" ]];  then
+	#-----------------MODIFY-CONFIG-LISTEN-PORTS---------------------#
+	sed -i "$(($sline + 1))s/.*/\t${port},/" "${deconf}"
+	sed -i "$(($sline + 2))s/.*/\t${port}/" "${deconf}"
+	#-------------------------------------------------------------------#
+	echo "---UPDATED LINES---"; sleep 1
+	echo "$(sed -n "$sline,$(("$sline" + "3"))p" "${deconf}")"; sleep 0.5
 else
-	sed -i "${sl1}s/.*/\t${port},/" "${deconf}"; sed -i "${sl2}s/.*/\t${port}/" "${deconf}"
-	echo "---UPDATED LINES---"; sleep 2
-	echo "$(sed -n "${sl1}p" "${deconf}")"; sleep 1
-	echo "$(sed -n "${sl2}p" "${deconf}")"; sleep 0.5
+	echo "You indicated those were the incorrect lines, you will have to modify them manually"; sleep 0.5
 fi
-#-----------------------------------------------------------------------#
+#--------------------------------BACK-TO-MAIN-PROGRAM---------------------------------------------------------#
+
 #--------add/ delete as needed, defaults to allow alot of things--------#
 echo $'\n'; sleep 0.5
 ufw allow in "DNS"
