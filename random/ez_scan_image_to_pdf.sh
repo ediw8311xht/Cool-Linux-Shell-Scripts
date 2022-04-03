@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# $1	  $2			$3			
-# DIR_IN, IMAGE_REGEX,	SKIP_ROTATION
+# $1	  $2			$3			    $4			$5
+# DIR_IN, IMAGE_REGEX,	SKIP_ROTATION,  COMPLETED	$COMPLETED_PDFS
 
 xr() { tput setaf   1; }; xg() { tput setaf   2; }; xy() { tput setaf  3; }; xb() { tput setaf 45; }; xw() { tput setaf 7; }
 xp() { tput setaf 200; }; xo() { tput setaf 208; }; xl() { tput setaf 13; }
 
-IFS=$'\n'; DIR_T=${1:-"${HOME}/SCAN/UNCOMPLETED"}
+IFS=$'\n'; DIR_T="${1:-"$HOME/SCAN/UNCOMPLETED"}"
 
 cd "${DIR_T}"
 
@@ -16,6 +16,8 @@ fi
 
 DIRECTORIES=($(ls -1d *"/"))
 REGEX_T="${2:-.*.png}"
+COMPLETED="${4:-"$HOME/SCAN/COMPLETED"}"
+COMPLETED_PDFS="${5:-"$HOME/SCAN/COMPLETED_PDFS"}"
 
 for DIR in ${DIRECTORIES[@]} ; do
 
@@ -57,4 +59,11 @@ for DIR in ${DIRECTORIES[@]} ; do
 
 	echo ""; sleep 0.8
 
+	echo "${COMPLETED}"; echo "${COMPLETED_PDFS}"
+	xb; INP=""; read -p "MOVE FILES TO COMPLETED (y|N) ?" INP; sleep 0.5; echo ""
+
+	if [[ "${INP}" =~ (y|Y|yes|Yes) ]] ; then
+		mv "${DIR}" "${COMPLETED}"
+		mv "${A}" "${COMPLETED_PDFS}"
+	fi
 done
