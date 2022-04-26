@@ -1,72 +1,45 @@
 #!/bin/bash
 
-isint() { if [[ $1 =~ ^([\-]?[1-9][0-9]?+|0)$ ]] ; then echo "yes"; else echo "no"; fi }
-isposint() { if [[ $1 =~ ^([1-9][0-9]?+|0)$ ]] ; then echo "yes"; else echo "no"; fi }
+#DEFINES CHECKING
+isint()     { if [[ "${1}" =~ ^([\-]?[1-9][0-9]?+|0)$ ]] ; then echo "yes"; else echo "no"; fi }
+isposint()  { if [[ "${1}" =~      ^([1-9][0-9]?+|0)$ ]] ; then echo "yes"; else echo "no"; fi }
 
-DATA_FILE="$HOME/bin/Data/nitroDATA.txt"
+IFS=$'\n'
+DATA_FILE="$HOME/bin/nitroDATA.txt"
+WF_DATA="$(   sed -n 1p "${DATA_FILE}")"
+if   [[ "${1}" = "UP" ]] ; then WF_DATA="$(( "${WF_DATA}" + "1" ))"; elif [[ "${1}" = "DOWN" ]] ; then WF_DATA="$(( "${WF_DATA}" + "-1" ))"; fi
+LF_DIR="$(    sed -n 2p "${DATA_FILE}")"
+PIC_DIR="$(   sed -n 3p "${DATA_FILE}")"
 
-WF_DATA=($(sed -n 1p "${DATA_FILE}"))
-PIC_PATH=$(sed -n 2p "${DATA_FILE}")
-#LF_DIR=$(sed -n 3p "${DATA_FILE}")
+if [[ -d "${LF_DIR}" ]] ; then cd "${LF_DIR}";  else echo "2nd Line (LF_DIR) Not Dir"; exit 1; fi
 
-DIRECTION=$1
+#------------------------------------------------------------------------START--------------------------------------------------------------------#
 
-if [[ $DIRECTION == "UP" ]] ; then 
-	WF_DATA=$(( $WF_DATA + 1 ))
-elif [[ $DIRECTION == "DOWN" ]] ; then
-	WF_DATA=$(( $WF_DATA - 1 ))
-elif [[ $DIRECTION == "RIGHT" ]] ; then
-	WF_DATA=$(( $WF_DATA + 2 ))
-elif [[ $DIRECTION == "LEFT" ]] ; then
-	WF_DATA=$(( $WF_DATA - 2 ))
-fi
+DIRS_L=($(echo "$(ls -Ltd -1 *'/')"))
+DLEN="${#DIRS_L[@]}"
 
-echo "READ FROM FILE: ${WF_DATA}"
-
-if [[ $(isposint "${WF_DATA}") == "yes" ]] ; then 
-	echo "SUCCESS: IS A POSITIVE NUMBER"; 
-else 
-	echo "ERROR: IS NOT A POSITIVE NUMBER"; exit 1; 
-fi
-
-# if [[ -n $2 ]] ; then PIC_PATH=$2; WF_DATA=0; else PIC_PATH=$(sed -n 2p "${DATA_FILE}"); fi
-if [[ -n $2 ]] ; then
-	PIC_PATH=$2
-	WF_DATA=0
-fi
-
-echo "${PIC_PATH}"
-
-if ! [ -d $PIC_PATH ] ; then
-	echo "ERROR 1st Argument: DIRRECTORY ARGUMENT"
-	echo "EITHER NOT DIRECTORY OR NOT PASSED"
-	exit 1
-fi
-
-#GETTING PICTURES PATH IN DIR > DIRECTORY
-
-# ALL_F=$(ls -L -1 $PIC_PATH | grep -P "(.*\.png|.*\.jpg)")
-ALL_F=$(ls -Lt -1 "${PIC_PATH}"*.png "${PIC_PATH}"*.jpg)
-NUM_F=$(echo "${ALL_F[@]}" | wc -l)
-#WF_DATA=$(( $WF_DATA % $NUM_F ))
-ALL_F=($ALL_F)
-
-if [[ NUM_F -lt 1 ]] ; then echo "ERROR .png or .jpg NOT FOUND in DIRECTORY GIVEN"; exit 1; fi
-
-if [[ $WF_DATA -ge $NUM_F ]] ; then
-	WF_DATA=$(( $NUM_F - 1 ))
-elif [[ $WF_DATA -lt 0 ]] ; then
-	WF_DATA=0
-fi
-
-echo "WF: ${WF_DATA}"
-echo "current file: ${ALL_F[${WF_DATA}]}"
-echo "WRITING TO SAVE FILE"
-echo "${WF_DATA}" > "${DATA_FILE}"
-echo "${PIC_PATH}" >> "${DATA_FILE}"
-
-echo $(nitrogen --head=0 --save --set-auto "${ALL_F[${WF_DATA}]}")
-echo $(nitrogen --head=1 --save --set-auto "${ALL_F[${WF_DATA}]}")
+if [[ ! -d "${PIC_DIR}" ]] ; then echo "3nd line DATA FILE NOT DIR"; DPOS="1"
+else DPOS="$( echo "${DIRS_L[*]}" | grep -xnF "${PIC_DIR}" | grep -Pio '^[1-9]+[0-9]?+' )"
+	 DPOS=$(( "${DPOS}" - "1" )); fi
 
 
+if   [[ "$?" != "0"               ]] ; then echo "ISSUE WITH PIC_DIR"; exit 1; fi
+if   [[ "${1}" =  "LEFT"          ]] ; then DPOS="$(( "${DPOS}" - "1" ))" ; elif [[ "${1}" = "RIGHT" ]] ; then DPOS="$(( "${DPOS}" + "1" ))"; fi
+if   [[ "${DPOS}" -lt "0"         ]] ; then DPOS="${DLEN}"; elif [[  "${DPOS}" -gt "${DLEN}" ]] ; then DPOS="0" ; fi
+if   [[ ! -d "${DIRS_L[${DPOS}]}" ]] ; then echo "line 43 not dir"; exit 1; fi
 
+
+PIC_DIR="${DIRS_L[${DPOS}]}"
+sed -i '3s#.*#'"${PIC_DIR}"'#' "${DATA_FILE}"
+
+PICS_L=($(echo "$(ls -Lt -1 "${PIC_DIR}"*.png "${PIC_DIR}"*.jpg 2>/dev/null)"))
+PLEN="${#PICS_L[@]}"
+
+WF_DATA=$(( "${WF_DATA}" % "${PLEN}" ))
+
+# -------------------------- PART 2
+nitrogen --head=0 --save --set-zoom-fill "${PICS_L[${WF_DATA}]}"
+nitrogen --head=1 --save --set-zoom-fill "${PICS_L[${WF_DATA}]}"
+
+sed -i '1s#.*#'"${WF_DATA}"'#' "${DATA_FILE}"
+sed -i '2s#.*#'"${LF_DIR}"'#'  "${DATA_FILE}"
