@@ -1,37 +1,30 @@
 #!/bin/bash
 
-if [[ "$#" -gt "0" ]] && [[ -d "${1}" ]] ; then 
-	EXPATH="$1"
-else
-	EXPATH="$HOME/Pictures/"
-fi
+cd "${1:-/home/$USER/Pictures}"
+IFS=$'\n'
 
-cd "${EXPATH}"
+for oldfile in $(find . -name "*.webp") ; do
 
-for s in $(find . -maxdepth 1 -name "*.webp") ; do
-    j=$(basename -s .webp "${s}")
-	dwebp "${j}.webp" -o "${j}.png"
-	echo $d
+	newfile="${oldfile::-6}.png"
 
-	#check to see if file was created successfully
-	if [[ "$?" -eq 0 ]] && [[ -f "${j}.png" ]] && [[ -f "${j}.webp" ]] ; then
+	echo "_"
+	echo "IN:  ${oldfile}"; echo "OUT: ${newfile}"
 
-		echo "--------Png created successfully" 
+	dwebp "${oldfile}" -o "${newfile}"
 
-		if [[ "$#" -gt "1" ]] && [[ "$2" =~ ^[y|Y]$ ]] ; then
-			echo "AUTO DELETING WEBP"
-			rm "${j}.webp"
-		elif [[ "$#" -lt "2" ]] || [[ ! "$2" =~ ^[n|N]$ ]] ; then
-			a=""; echo "Do you want to delete the webp? > "; read a
-			if [[ "$a" =~ [y|Y]([e|E][s|S])?$ ]] ; then	rm "${j}.webp"; fi
-		fi
-
-		echo ""
-
-		if [[ -f "${j}.webp" ]] ; then
-			echo "-------FILE NOT DELETED"
-		else
-			echo "-------FILE DELETED"
-		fi
+	if [[ "$?" -ne "0" ]] || ! [[ -f "${newfile}" ]] ; then 
+		"!!!!-ERROR:-FILE-NOT-CREATED"
+		continue
 	fi
+
+	echo ">>>>-SUCCESS:-Png-created-successfully" 
+	echo "AUTO DELETING WEBP"
+
+	rm "${oldfile}" ; if [[ -f "${oldfile}" ]] ; then  
+		echo "!!!!-ERROR:-FILE-NOT-DELETED"
+		continue
+	fi
+
+	echo ">>>>-:--${oldfile}--DELETED"   
+
 done
