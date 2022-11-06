@@ -16,7 +16,7 @@ while [[ "${1}" =~ ^- ]] ; do
 done
 
 
-OUT="$(i3 -C "${1:-"/home/maceurt/.i3/config"}")"
+OUT="$(i3 -C "${1:-"$HOME/.i3/config"}")"
 
 if 	 [[ "$?" -ne 0 ]] || [[ -n "${OUT}" ]] ; then
 	i3-input -f 'xft:Hermit 15' -l 1 -P '!![Error in your config file]!!'
