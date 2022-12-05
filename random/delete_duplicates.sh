@@ -3,8 +3,8 @@
 function hash_of() {
 	SIZE="$#"
 	echo $'\n' >$(tty)
-	for i in $@ ; do
-		sha1sum "${i}"
+	for i in "$@" ; do
+		md5sum "${i}"
 		SIZE=$((SIZE-1))
 		echo -ne "#${SIZE}#\r     " >$(tty)
 	done
@@ -14,7 +14,7 @@ function hash_of() {
 function file_hash() {
 	if [[ -s "${2}" ]] ; then 
 		echo "FILE ALREADY EXISTS"
-		return -1
+		return 1
 	fi
 
 	#G="$(hash_of ${1} | cut -d ' ' -f 1)"
@@ -31,12 +31,12 @@ function get_duplicates() {
 	i="1"
 	while [[ "${i}" -lt $((SIZE-1)) ]] ; do
 		Z="$(grep -P "^${PORTED[i]} " <<< "${SORTED[*]:$((i+1))}")"
+                echo '----------------------------------------'
+		echo "# ${Z}"
 		if [[ "$?" -eq "0" ]] ; then
-			echo "COPY,DUPE"
-			echo "1 -- ${Z}"
-			echo "2 -- ${SORTED[i]}"
-			echo ""
-			trash-put --verbose "$(grep -Pio '^[^ ]+[ ]+\K.*' <<< "${SORTED[i]}")"
+                        echo ""
+			echo "          -${SORTED[i]}-"
+			#trash-put --verbose "$(grep -Pio '^[^ ]+[ ]+\K.*' <<< "${SORTED[i]}")"
 #			A="_"; read -p "Delete first or second file? (1|2|N)" A
 #			if   [[ "$A" =~ ^1$ ]] ; then trash-put --verbose "$(grep -Pio '^[^ ]+[ ]+\K.*' <<< "${Z}")"
 #			elif [[ "$A" =~ ^2$ ]] ; then trash-put --verbose "$(grep -Pio '^[^ ]+[ ]+\K.*' <<< "${SORTED[i]}")"
@@ -54,7 +54,7 @@ function wrap_hash() {
 
 	TEMP_F="$(mktemp "/tmp/XXXXXXX.txt")"
 
-	FILES="$(find $@ -type f)"
+	FILES="$(find "$@" -type f)"
 
 	file_hash "${FILES}" "${TEMP_F}"
 

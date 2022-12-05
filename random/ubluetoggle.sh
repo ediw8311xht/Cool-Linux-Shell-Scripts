@@ -17,11 +17,13 @@ c_send() {
 /usr/bin/bluetooth on; if [[ "$?" -ne "0" ]] ; then c_send "ubluetoggle.sh" "> '/usr/bin/bluetooth on'" "E"; exit 1; fi
 bluetoothctl power on; if [[ "$?" -ne "0" ]] ; then c_send "ubluetoggle.sh" "> 'bluetoothctl power on'" "E"; exit 1; fi
 
-if [[ -n "${1}" ]] ; then
-	DEVMAC="$(bluetoothctl paired-devices | grep -Pio "([0-9A-Z]{2}:){5}[0-9A-Z]{2}\ (?=${1})")"
-else
-	DEVMAC="$(bluetoothctl paired-devices | grep -Pio "([0-9A-Z]{2}:){5}[0-9A-Z]{2}")"
-fi
+DEVMAC="3C:4D:BE:84:1F:BC"
+#if [[ -n "${1}" ]] ; then
+#	DEVMAC="$(bluetoothctl devices Paired | grep -Pio "([0-9A-Z]{2}:){5}[0-9A-Z]{2}\ (?=${1})")"
+#else
+#	DEVMAC="$(bluetoothctl devices Paired | grep -Pio "([0-9A-Z]{2}:){5}[0-9A-Z]{2}")"
+#fi
+
 
 if [[ "$?" -ne "0" ]] ; then
 	c_send "Error" "Device with Mac Address for Device '${1-:"_any_"}' not found" "E"
