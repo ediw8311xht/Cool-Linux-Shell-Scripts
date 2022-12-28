@@ -1,11 +1,9 @@
 #!/bin/bash
 
-
 c_send() {
 	TIME="${4-"4000"}"; ICON="${8:-"$HOME/bin/Resources/Images/bluetooth.png"}"
 	if [[ "${3}" = "E" ]] ; then MBG="${5:-"#000000"}"; MFG="${6-"#FF0000"}"; MFR="${7-"#FF0000"}"; 
 	else 					     MBG="${5:-"#000000"}"; MFG="${6-"#00FF00"}"; MFR="${7-"#000000"}"; fi
-
 	notify-send -i "${ICON}"\
 				-h string:bgcolor:"${MBG}"\
 				-h string:fgcolor:"${MFG}"\
@@ -17,7 +15,7 @@ c_send() {
 /usr/bin/bluetooth on; if [[ "$?" -ne "0" ]] ; then c_send "ubluetoggle.sh" "> '/usr/bin/bluetooth on'" "E"; exit 1; fi
 bluetoothctl power on; if [[ "$?" -ne "0" ]] ; then c_send "ubluetoggle.sh" "> 'bluetoothctl power on'" "E"; exit 1; fi
 
-DEVMAC="3C:4D:BE:84:1F:BC"
+DEVMAC="${BLUETOOTH_DEVICE_1_MAC}"
 #if [[ -n "${1}" ]] ; then
 #	DEVMAC="$(bluetoothctl devices Paired | grep -Pio "([0-9A-Z]{2}:){5}[0-9A-Z]{2}\ (?=${1})")"
 #else

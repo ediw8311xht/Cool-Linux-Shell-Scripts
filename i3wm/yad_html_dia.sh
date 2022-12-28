@@ -18,7 +18,7 @@ function yad_hd() {
 
     handle_args "${@}"
     GTK_THEME="${THEME}"\
-        yad --title "${TITLE}" --posx="${YAD_POS_X:-"1"}" --posy="${YAD_POS_Y:-"1"}" --height="1" --no-focus --no-buttons --text "${TEXT}" 
+        yad --title "${TITLE}" --text --posx="${YAD_POS_X:-"1"}" --posy="${YAD_POS_Y:-"1"}" --background-color="#00FF00" --no-focus --no-buttons --text "${TEXT}" 
 }
 
 yad_hd "${@}"
