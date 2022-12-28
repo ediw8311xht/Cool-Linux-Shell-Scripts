@@ -58,17 +58,16 @@ handle_args "${@}"
 
 lim="${DLEN}"
 while ! conimage "${DIRS_L[${DPOS}]}" ; do
-	PIC_POS="0"; DPOS="$( addmod "${DPOS}" "${ADD_BY}" "${DLEN}" )"
+	PIC_POS="0" ; DPOS="$( addmod "${DPOS}" "${ADD_BY}" "${DLEN}" )"
     if [[ $((--lim)) -le '0' ]] ; then 
-		echo "COULD NOT FIND ANY DIRECTORY WITH IMAGE FILES"
         return 1
     fi
 done
 
-PICS_L=($(find ${DIRS_L[${DPOS}]} -type f -iregex '.*[.]\(png\|jpg\|jpeg\)'))
+#-----------------UPDATED-VALUES-----------------------------------------#
+PICS_L=($(find "${DIRS_L[${DPOS}]}" -type f -iregex '.*[.]\(png\|jpg\|jpeg\)'))
 PIC_DIR="${DIRS_L[${DPOS}]}"
 PIC_POS="$(( "${PIC_POS}" % "${#PICS_L[@]}" ))"
-
 #-----------------SET-WALLPAPER------------------------------------------#
 nitrogen --head=0 --save --set-${SHOW_TYPE:-auto} "${PICS_L[${PIC_POS}]}"
 nitrogen --head=1 --save --set-${SHOW_TYPE:-auto} "${PICS_L[${PIC_POS}]}"
@@ -76,7 +75,7 @@ nitrogen --head=1 --save --set-${SHOW_TYPE:-auto} "${PICS_L[${PIC_POS}]}"
 sed -i '1s#.*#'"${LF_DIR}"'#'  "${DATA_FILE}"
 sed -i '2s#.*#'"${PIC_DIR}"'#' "${DATA_FILE}"
 sed -i '3s#.*#'"${PIC_POS}"'#' "${DATA_FILE}"
-
+#-----------------NOTIFICATION-------------------------------------------#
 dunstctl close-all
 c_send "${SHOW_TYPE:-auto} - ${PIC_DIR}" "${PICS_L[${PIC_POS}]##*/}"
 
