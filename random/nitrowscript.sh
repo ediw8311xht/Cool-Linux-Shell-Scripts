@@ -10,18 +10,12 @@ addmod() {
     echo "$(( "$(( "${1}" + "${2}" ))" % "${3}" ))"
 }
 c_send() {
-	TIME="10000" ## -- Milliseconds to wait -- (1/1000) of Second -- ##
-	if [[ "${3}" = "E" ]] ; then MBG="${5:-"#000000"}"; MFG="${6-"#FF0000"}"; MFR="${7-"#FF0000"}"; 
-	else 					     MBG="${5:-"#000000"}"; MFG="${6-"#00FF00"}"; MFR="${7-"#000000"}"; fi
-	notify-send -h string:bgcolor:"${MBG}"\
-				-h string:fgcolor:"${MFG}"\
-				-h string:frcolor:"${MFR}"\
-				-t "${TIME}"\
-				"${1}" "${2}" 
+	notify-send -h string:bgcolor:"#000000"\
+				-h string:fgcolor:"#00FF00"\
+				-h string:frcolor:"#00FF00"\
+				-t "${3:-10000}" "${1}" "${2}" 
 }
 handle_args() {
-    if [[ -z "${1}" ]] ; then return '0' ; fi
-
     case "${1}" in --zoom) SHOW_TYPE="zoom" 
            ;;      --auto) SHOW_TYPE="auto" 
            ;;     --tiled) SHOW_TYPE="tiled" 
@@ -31,20 +25,17 @@ handle_args() {
            ;;        DOWN) (( --PIC_POS ))
            ;;        LEFT) PIC_POS="0" ;  ADD_BY="-1" ; DPOS="$( addmod "${DPOS}" "${ADD_BY}" "${DLEN}" )"
            ;;       RIGHT) PIC_POS="0" ;  ADD_BY="1"  ; DPOS="$( addmod "${DPOS}" "${ADD_BY}" "${DLEN}" )"
-           ;;           *) return '1'
            ;; esac
-    shift ;  handle_args "${@}"
+    shift && [[ "$#" -ge 1 ]] && handle_args "${@}"
 }
-
-#-----------------ASSIGNING-AND-VALIDATING-------------------------------#
+#-----------------MAIN---------------------------------------------------#
 IFS=$'\n'
-if ! DATA_FILE="$HOME/bin/Data/nitroDATA.txt" ; then 
-        return '1'
-elif ! LF_DIR="$( sed -n 1p "${DATA_FILE}")" || ! cd "${LF_DIR}" ; then
-    return '1'
-elif ! DIRS_L=($( echo "$( find *'/' -type d 2>/dev/null )" )) ; then
-    return 1
-elif ! DLEN="${#DIRS_L[@]}" ; then
+if ! DATA_FILE="$HOME/bin/Data/nitroDATA.txt"    ||
+   ! LF_DIR="$( sed -n 1p "${DATA_FILE}")"       || 
+   ! cd "${LF_DIR}"                              ||
+   ! DIRS_L=($( find *'/' -type d 2>/dev/null )) ||
+   ! DLEN="${#DIRS_L[@]}"
+then
     return 1
 fi
 
@@ -64,7 +55,6 @@ DPOS="$( echo "${DIRS_L[*]}" | grep -xnF "${PIC_DIR}" | grep -Pio '^[1-9]+[0-9]?
 ((--DPOS))
 
 handle_args "${@}"
-#-----------------ASSIGNING-AND-VALIDATING-------------------------------#
 
 lim="${DLEN}"
 while ! conimage "${DIRS_L[${DPOS}]}" ; do
@@ -75,10 +65,7 @@ while ! conimage "${DIRS_L[${DPOS}]}" ; do
     fi
 done
 
-#PICS_L=($(echo "$(ls -Lt -1 "${DIRS_L[${DPOS}]}"*.png "${DIRS_L[${DPOS}]}"*.jpeg "${DIRS_L[${DPOS}]}"*.jpg 2>/dev/null)"))
-
 PICS_L=($(find ${DIRS_L[${DPOS}]} -type f -iregex '.*[.]\(png\|jpg\|jpeg\)'))
-
 PIC_DIR="${DIRS_L[${DPOS}]}"
 PIC_POS="$(( "${PIC_POS}" % "${#PICS_L[@]}" ))"
 
@@ -91,8 +78,5 @@ sed -i '2s#.*#'"${PIC_DIR}"'#' "${DATA_FILE}"
 sed -i '3s#.*#'"${PIC_POS}"'#' "${DATA_FILE}"
 
 dunstctl close-all
-
-PIC_NAME_EE="${PICS_L[${PIC_POS}]}"
-
-c_send "${SHOW_TYPE:-auto} - ${PIC_DIR}" "${PIC_NAME_EE##*/}"
+c_send "${SHOW_TYPE:-auto} - ${PIC_DIR}" "${PICS_L[${PIC_POS}]##*/}"
 
