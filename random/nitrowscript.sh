@@ -1,10 +1,16 @@
 #!/bin/bash
 
+###################
+( #-BEGIN-SUBSHELL#
+###################
+
+IFS=$'\n'
+
 #-----------------FUNCTIONS----------------------------------------------#
 conimage() { 
     if find "${1}" -type f -iregex '.*[.]\(png\|jpg\|jpeg\)'
     then return '0'; fi
-    return '1'
+    exit 1
 }
 addmod() {
     echo "$(( "$(( "${1}" + "${2}" ))" % "${3}" ))"
@@ -29,14 +35,13 @@ handle_args() {
     shift && [[ "$#" -ge 1 ]] && handle_args "${@}"
 }
 #-----------------MAIN---------------------------------------------------#
-IFS=$'\n'
 if ! DATA_FILE="$HOME/bin/Data/nitroDATA.txt"    ||
    ! LF_DIR="$( sed -n 1p "${DATA_FILE}")"       || 
    ! cd "${LF_DIR}"                              ||
    ! DIRS_L=($( find *'/' -type d 2>/dev/null )) ||
    ! DLEN="${#DIRS_L[@]}"
 then
-    return 1
+    exit 1
 fi
 
 if   ! PIC_DIR="$(sed -n 2p "${DATA_FILE}")"  ||
@@ -60,7 +65,7 @@ lim="${DLEN}"
 while ! conimage "${DIRS_L[${DPOS}]}" ; do
 	PIC_POS="0" ; DPOS="$( addmod "${DPOS}" "${ADD_BY}" "${DLEN}" )"
     if [[ $((--lim)) -le '0' ]] ; then 
-        return 1
+        exit 1
     fi
 done
 
@@ -78,4 +83,9 @@ sed -i '3s#.*#'"${PIC_POS}"'#' "${DATA_FILE}"
 #-----------------NOTIFICATION-------------------------------------------#
 dunstctl close-all
 c_send "${SHOW_TYPE:-auto} - ${PIC_DIR}" "${PICS_L[${PIC_POS}]##*/}"
+
+#################
+) #-END-SUBSHELL#
+#################
+exit 0
 
