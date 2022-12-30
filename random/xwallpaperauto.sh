@@ -47,17 +47,17 @@ cd "${main_dir}" || exit 1
 handle_args "${@}"
 
 ldirs=(); mapfile -t "ldirs" < <(dirs_with_pics '.' '-quit' | sort)
-[[ $(( dpos %= ${#ldirs[@]} )) -ge 0 ]] || (( dpos += ${#ldirs[@]} ))
-lpics=(); mapfile -t "lpics" < <(bash -c -- "${picfind}" - "${ldirs[ dpos ]}" | sort)
-[[ $(( picpos %= ${#lpics[@]} )) -ge 0 ]] || (( picpos += ${#lpics[@]} ))
+[[ "$(( dpos %= "${#ldirs[@]}" ))" -ge 0 ]] || (( dpos += "${#ldirs[@]}" ))
+lpics=(); mapfile -t "lpics" < <(bash -c -- "${picfind}" - "${ldirs[ "${dpos}" ]}" | sort)
+[[ "$(( picpos %= "${#lpics[@]}" ))" -ge 0 ]] || (( picpos += "${#lpics[@]}" ))
 
 #-----CHANGE-WALLPAPER---------------------------------------------------------#
 if [[ -z "${OUTPUTS[*]}" ]] ; then
     for i in $(xrandr --listmonitors | grep -Po "(?<= )(HDMI|VGA|DVI)[^ ]+$") ; do
-        xwallpaper --output "${i}" ${PARGS[*]:---focus} "${lpics[ picpos ]}"
+        xwallpaper --output "${i}" "${PARGS[*]:---focus}" "${lpics[ "${picpos}" ]}"
     done
 else
-    xwallpaper ${OUTPUTS[*]} ${PARGS[*]:---focus} "${lpics[ picpos ]}"
+    xwallpaper "${OUTPUTS[*]}" "${PARGS[*]:---focus}" "${lpics[ "${picpos}" ]}"
 fi
 
 #-----UPDATE-DATA-FILE---------------------------------------------------------#
