@@ -16,18 +16,8 @@ c_send() {
 bluetoothctl power on; if [[ "$?" -ne "0" ]] ; then c_send "ubluetoggle.sh" "> 'bluetoothctl power on'" "E"; exit 1; fi
 
 DEVMAC="${BLUETOOTH_DEVICE_1_MAC}"
-#if [[ -n "${1}" ]] ; then
-#	DEVMAC="$(bluetoothctl devices Paired | grep -Pio "([0-9A-Z]{2}:){5}[0-9A-Z]{2}\ (?=${1})")"
-#else
-#	DEVMAC="$(bluetoothctl devices Paired | grep -Pio "([0-9A-Z]{2}:){5}[0-9A-Z]{2}")"
-#fi
 
-
-if [[ "$?" -ne "0" ]] ; then
-	c_send "Error" "Device with Mac Address for Device '${1-:"_any_"}' not found" "E"
-	exit 1
-fi
-
+echo "HI"
 echo "${DEVMAC}"
 
 ISMIS=$(bluetoothctl info | grep "Missing device address argument")
