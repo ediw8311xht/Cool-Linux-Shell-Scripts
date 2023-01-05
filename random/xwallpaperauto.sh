@@ -8,16 +8,18 @@
 IFS=$'\n'
 DATA_FILE="$HOME/bin/Data/xwallautoDATA.txt"
 touch "${DATA_FILE}"
-if [[ "$(wc -l "${DATA_FILE}" | grep -o '^[0-9]*')" -lt 3 ]] ; then
-    echo $'\n\n\n' > "${DATA_FILE}"
+if [[ "$(wc -l "${DATA_FILE}" | grep -o '^[0-9]*')" -lt 4 ]] ; then
+    echo $'\n\n\n\n\n\n\n' > "${DATA_FILE}"
 fi
 
-main_dir="$(sed -n 1p "${DATA_FILE}")"
-dpos="$(sed -n 2p "${DATA_FILE}")"
-picpos="$(sed -n 3p "${DATA_FILE}")"
+#-------------RESERVE-FIRST-LINE--#
+main_dir="$(sed -n 2p "${DATA_FILE}")"
+dpos="$(sed -n 3p "${DATA_FILE}")"
+picpos="$(sed -n 4p "${DATA_FILE}")"
+pargs="$(sed -n 5p "${DATA_FILE}")"
 
 #-----CHECK--------------------------------------------------------------------#
-[[           -d "${main_dir}"  ]] || main_dir="$HOME/Pictures"
+[[            -d "${main_dir}" ]] || main_dir="$HOME/Pictures/Wallpapers"
 [[   "${dpos}" =~ ^[-]?[0-9]+$ ]] || dpos=0
 [[ "${picpos}" =~ ^[-]?[0-9]+$ ]] || picpos=0
 
@@ -35,7 +37,7 @@ function handle_args() {
     ;;  down) ((picpos++))
     ;; --silent) SILENT=1
     ;; --output) OUTPUTS+=("${2}") ; shift
-    ;;  --pargs) PARGS+=("${2}")   ; shift
+    ;;  --pargs) pargs+="${2}"   ; shift
     ;; esac
     shift && [[ "$#" -ge 1 ]] && handle_args "${@}"
 }
@@ -54,26 +56,28 @@ lpics=(); mapfile -t "lpics" < <(bash -c -- "${picfind}" - "${ldirs[ "${dpos}" ]
 #-----CHANGE-WALLPAPER---------------------------------------------------------#
 if [[ -z "${OUTPUTS[*]}" ]] ; then
     for i in $(xrandr --listmonitors | grep -Po "(?<= )(HDMI|VGA|DVI)[^ ]+$") ; do
-        xwallpaper --output "${i}" "${PARGS[*]:---focus}" "${lpics[ "${picpos}" ]}"
+        xwallpaper --output "${i}" "${pargs[*]:---focus}" "${lpics[ "${picpos}" ]}"
     done
 else
-    xwallpaper "${OUTPUTS[*]}" "${PARGS[*]:---focus}" "${lpics[ "${picpos}" ]}"
+    xwallpaper "${OUTPUTS[*]}" $(printf '%s' "${pargs[*]:---focus}") "${lpics[ "${picpos}" ]}"
 fi
 
 #-----UPDATE-DATA-FILE---------------------------------------------------------#
-sed -i '1s#.*#'"${main_dir}"'#'  "${DATA_FILE}"
-sed -i '2s#.*#'"${dpos}"'#'      "${DATA_FILE}"
-sed -i '3s#.*#'"${picpos}"'#'    "${DATA_FILE}"
+sed -i '2s#.*#'"${main_dir}"'#'  "${DATA_FILE}"
+sed -i '3s#.*#'"${dpos}"'#'      "${DATA_FILE}"
+sed -i '4s#.*#'"${picpos}"'#'    "${DATA_FILE}"
+sed -i '5s#.*#'"${pargs}"'#'     "${DATA_FILE}"
 
 #-----NOTIFICATION-------------------------------------------------------------#
 if [[ -z "${SILENT}" ]] ; then
     dunstctl close-all
     string="$(printf $'%s \n'                     \
-              "xwallpaper [${PARGS[*]:---focus}]" \
+              "xwallpaper [${pargs[*]:---focus}]" \
               "[${dpos}] - ${ldirs[dpos]}"        \
               "[${picpos}] - ${lpics[${picpos}]##*/}" )"
     notify-send -h string:bgcolor:"#000000" -h string:fgcolor:"#00FF00"     \
                 -h string:frcolor:"#00FF00" -t "10000" "${string}"
+    echo "HI"
 fi
 
 ########################################
