@@ -10,7 +10,7 @@ function update_monitor_export() {
 
     if [[ ! "${1,,}" =~ nox ]] && [[ -f "$HOME/.Xresources" ]] ; then
         echo "HI"
-        local hide_Z="1" ; sed -i '/^i3\(wm\)?[.]\(MONITOR\|monitor\).*/d' "$HOME/.Xresources"
+        local hide_Z="1" ; sed -i '/^i3\(wm\)\?[.]\(MONITOR\|monitor\).*/d' "$HOME/.Xresources"
     fi
     mapfile -t hide_MONITORS < <(get_monitors | sort)
     i='0' ; while [[ ++i -le "${#hide_MONITORS[@]}" ]] ; do
