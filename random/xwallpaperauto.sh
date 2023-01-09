@@ -37,7 +37,8 @@ function handle_args() {
     ;;  down) ((picpos++))
     ;; --silent) SILENT=1
     ;; --output) OUTPUTS+=("${2}") ; shift
-    ;;  --pargs) pargs+="${2}"   ; shift
+    ;;  --pargs) if [[ "${got_t}" -ne '1' ]] ; then got_t='1' ;  pargs=( "${2}" )
+                 else                                           pargs+=( "${2}" ) ; fi
     ;; esac
     shift && [[ "$#" -ge 1 ]] && handle_args "${@}"
 }
@@ -66,7 +67,7 @@ fi
 sed -i '2s#.*#'"${main_dir}"'#'  "${DATA_FILE}"
 sed -i '3s#.*#'"${dpos}"'#'      "${DATA_FILE}"
 sed -i '4s#.*#'"${picpos}"'#'    "${DATA_FILE}"
-sed -i '5s#.*#'"${pargs}"'#'     "${DATA_FILE}"
+sed -i '5s#.*#'"${pargs[*]}"'#'     "${DATA_FILE}"
 
 #-----NOTIFICATION-------------------------------------------------------------#
 if [[ -z "${SILENT}" ]] ; then
