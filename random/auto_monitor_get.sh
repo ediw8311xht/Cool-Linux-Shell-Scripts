@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function get_monitors() {
-    printf '%s\n' "$(xrandr --listmonitors | grep -Po "(?<= )(HDMI|VGA|DVI)[^\ ]+$")"
+    printf '%s\n' "$(xrandr --listmonitors | grep -Po "(?<= )(HDMI|VGA|DVI|DP|TV)[^\ ]+$")"
 }
 
 function update_monitor_export() {
