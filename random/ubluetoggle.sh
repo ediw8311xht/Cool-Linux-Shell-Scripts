@@ -12,8 +12,11 @@ c_send() {
 				"${1}" "${2}" 
 }
 
-/usr/bin/bluetooth on; if [[ "$?" -ne "0" ]] ; then c_send "ubluetoggle.sh" "> '/usr/bin/bluetooth on'" "E"; exit 1; fi
-bluetoothctl power on; if [[ "$?" -ne "0" ]] ; then c_send "ubluetoggle.sh" "> 'bluetoothctl power on'" "E"; exit 1; fi
+/usr/bin/bluetooth on
+
+if [[ "$?" -ne "0" ]] ; then c_send "ubluetoggle.sh" "> '/usr/bin/bluetooth on'" "E"; exit 1; fi
+bluetoothctl power on
+if [[ "$?" -ne "0" ]] ; then c_send "ubluetoggle.sh" "> 'bluetoothctl power on'" "E"; exit 1; fi
 
 DEVMAC="${BLUETOOTH_DEVICE_1_MAC}"
 
