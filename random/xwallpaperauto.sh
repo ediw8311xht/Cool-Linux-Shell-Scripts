@@ -82,6 +82,6 @@ if [[ -z "${SILENT}" ]] ; then
 fi
 
 ########################################
-) ; exit 0 #-END-SUBSHELL---AND-PROGRAM#
+)          #-END-SUBSHELL---AND-PROGRAM#
 ########################################
 
