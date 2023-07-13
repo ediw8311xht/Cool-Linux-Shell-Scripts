@@ -8,7 +8,7 @@ function launch_polybar() {
     if [[ -n "${DIS_MODE}" ]] ; then
         . "$HOME/.config/polybar/launch.sh" "${DIS_MODE}"
     else
-        . "$HOME/.config/polybar/launch.sh" 
+        . "$HOME/.config/polybar/launch.sh"
     fi
 }
 
@@ -17,7 +17,7 @@ function move_polyz() {
     case "${1,,}" in
                  left)  sed -i  's/^\([ \t]*\)offset[-]x/;\1offset-x/'                      "${CONFIG_INI}"
         ;;      right)  sed -i  's/^\([ \t]*\);\([ \t]*\)offset[-]x/\1\2offset-x/'          "${CONFIG_INI}"
-        ;;         up)  sed -i  's/^[ \t]*bottom[ \t]*[=][ \t]*true/    bottom = false/'    "${CONFIG_INI}"  
+        ;;         up)  sed -i  's/^[ \t]*bottom[ \t]*[=][ \t]*true/    bottom = false/'    "${CONFIG_INI}"
         ;;       down)  sed -i  's/^[ \t]*bottom[ \t]*[=][ \t]*false/    bottom = true/'    "${CONFIG_INI}"
 
         ;;        all)  DIS_MODE='all'
