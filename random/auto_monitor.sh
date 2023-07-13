@@ -22,20 +22,16 @@ function update_monitor_export() {
         local hide_Z="1" ; sed -i '/^i3\(wm\)\?[.]\(MONITOR\|monitor\).*/d' "$HOME/.Xresources"
     fi
     mapfile -t hide_MONITORS < <(get_monitors | sort)
-    i=0 ; while [[ ++i -le "${#hide_MONITORS[@]}" ]] ; do
+    while [[ "$((++i))" -le "${#hide_MONITORS[@]}" ]] ; do
         export "MONITOR_${i}"="${hide_MONITORS[i-1]}"
-        if [[ "${hide_Z}" -eq '1' ]] ; then
-            echo "i3wm.monitor${i}: ${hide_MONITORS[i-1]}" >> "$HOME/.Xresources"
-        fi
-        if [[ "${i}" -gt 0 ]] ; then 
-            xrandr --output "${hide_MONITORS[i-1]}" --right-of "${hide_MONITORS[i-2]}"
-        fi
+        [[ "${hide_Z}" -eq '1' ]] && echo "i3wm.monitor${i}: ${hide_MONITORS[i-1]}" >> "$HOME/.Xresources"
+        [[ "${i}" -gt 0 ]] && xrandr --output "${hide_MONITORS[i-1]}" --right-of "${hide_MONITORS[i-2]}"
     done
 }
 
 function handle_args() {
-    if [[ -z "${1}" ]] ; then 
-        update_monitor_export "${@}" 
+    if [[ -z "${1}" ]] ; then
+        update_monitor_export "${@}"
     else
         local a="${1}" ; shift 1
         case "${a}" in
