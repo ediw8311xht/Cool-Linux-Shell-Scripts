@@ -12,15 +12,14 @@ function hash_of() {
 }
 
 function file_hash() {
-	if [[ -s "${2}" ]] ; then 
-		echo "FILE ALREADY EXISTS"
-		return 1
+	if [[ -s "${2}" ]] ; then
+		echo "FILE ALREADY EXISTS" ; return 1
+    else
+        G="$(hash_of ${1})"
+        echo "${G}" > "${2}"
+        return $?
 	fi
 
-	#G="$(hash_of ${1} | cut -d ' ' -f 1)"
-	G="$(hash_of ${1})"
-	echo "${G}" > "${2}"
-	return $?
 }
 
 function get_duplicates() {
