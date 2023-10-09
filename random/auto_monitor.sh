@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+ORDER_MONITORS=('DP' 'HDMI' 'VGA' 'DVI' 'TV')
 
 function get_monitors() {
     printf '%s\n' "$(xrandr --listmonitors | grep -Po "(?<= )(HDMI|VGA|DVI|DP|TV)[^\ ]+$")"
@@ -17,15 +18,24 @@ function rotate_m() {
 function update_monitor_export() {
     local hide_MONITORS=();
     local hide_Z='0'
+    local gms=("$(get_monitors)")
 
     if [[ ! "${1,,}" =~ nox ]] && [[ -f "$HOME/.Xresources" ]] ; then
         local hide_Z="1" ; sed -i '/^i3\(wm\)\?[.]\(MONITOR\|monitor\).*/d' "$HOME/.Xresources"
     fi
-    mapfile -t hide_MONITORS < <(get_monitors | sort)
+
+
+    for i in "${ORDER_MONITORS[@]}" ; do
+        if mon_g="$(grep -Pio "${i}[^ \t\n]*" <<< "${gms[@]}")" ; then
+            echo "${mon_g}"
+            hide_MONITORS+=("${mon_g}")
+        fi
+    done
+
     while [[ "$((++i))" -le "${#hide_MONITORS[@]}" ]] ; do
         export "MONITOR_${i}"="${hide_MONITORS[i-1]}"
         [[ "${hide_Z}" -eq '1' ]] && echo "i3wm.monitor${i}: ${hide_MONITORS[i-1]}" >> "$HOME/.Xresources"
-        [[ "${i}" -gt 0 ]] && xrandr --output "${hide_MONITORS[i-1]}" --right-of "${hide_MONITORS[i-2]}"
+        [[ "${i}"      -gt   0 ]] && xrandr --output "${hide_MONITORS[i-1]}" --right-of "${hide_MONITORS[i-2]}"
     done
 }
 
