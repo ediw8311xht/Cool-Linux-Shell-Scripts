@@ -9,6 +9,7 @@ IFS=$'\n'
 DATA_FILE="$HOME/bin/Data/xwallautoDATA.txt"
 touch "${DATA_FILE}"
 if [[ "$(wc -l "${DATA_FILE}" | grep -o '^[0-9]*')" -lt 4 ]] ; then
+    # IF DATA FILE IS EMPTY THEN ADD LINES
     echo $'\n\n\n\n\n\n\n' > "${DATA_FILE}"
 fi
 
@@ -24,16 +25,16 @@ pargs="$(sed -n 5p "${DATA_FILE}")"
 [[ "${picpos}" =~ ^[-]?[0-9]+$ ]] || picpos=0
 
 #-----FUNCTIONS----------------------------------------------------------------#
-picfind='find "${1}" -mindepth 1 -maxdepth 1 -type f -iregex ".*[.]\(png\|jpg\|jpeg\)"' 
+picfind='find "${1}" -mindepth 1 -maxdepth 1 -type f -iregex ".*[.]\(png\|jpg\|jpeg\)"'
 function dirs_with_pics() {
     find "${1}" -mindepth 1 -maxdepth 1 -type d \
-        -execdir bash -c -- "${picfind}"' -exec echo "${1#./*}" \; -quit' - {} \;       
+        -execdir bash -c -- "${picfind}"' -exec echo "${1#./*}" \; -quit' - {} \;
 }
 function handle_args() {
-    case "${1,,}" in 
+    case "${1,,}" in
         left) picpos=0 ; ((dpos--))
     ;; right) picpos=0 ; ((dpos++))
-    ;;    up) ((picpos--)) 
+    ;;    up) ((picpos--))
     ;;  down) ((picpos++))
     ;; --silent) SILENT=1
     ;; --output) OUTPUTS+=("${2}") ; shift
@@ -81,7 +82,7 @@ if [[ -z "${SILENT}" ]] ; then
     echo "HI"
 fi
 
-########################################
-)          #-END-SUBSHELL---AND-PROGRAM#
-########################################
+#################
+) #-END-SUBSHELL#
+#################
 
