@@ -1,13 +1,19 @@
 #!/usr/bin/env bash
 
-ORDER_MONITORS=('DP' 'HDMI' 'VGA' 'DVI' 'TV')
+
+###################
+( #-BEGIN-SUBSHELL#
+###################
+
+ORDER_MONITORS=('DP' 'DisplayPort' 'HDMI' 'VGA' 'DVI' 'TV')
+ROTATE_MONITOR='(DP|DisplayPort).*'
 
 function get_monitors() {
-    printf '%s\n' "$(xrandr --listmonitors | grep -Po "(?<= )(HDMI|VGA|DVI|DP|TV)[^\ ]+$")"
+    printf '%s\n' "$(xrandr --listmonitors | grep -Po "(?<= )(HDMI|VGA|DVI|DP|TV|DisplayPort)[^\ ]+$")"
 }
 
 function rotate_m() {
-    if xrandr  -q | grep -F "DP-1" | grep -Pio '[ \t]+\K[a-z]+(?=[ \t]*\()' ; then
+    if xrandr  -q | grep -Pio "${ROTATE_MONITOR}" | grep -Pio '(left|right)[ \t]*[(]' ; then
         xrandr --output "${1}" --rotate "normal"
     else
         xrandr --output "${1}" --rotate "${2}"
@@ -53,3 +59,7 @@ function handle_args() {
 }
 
 handle_args "${@}"
+
+#################
+) #-END-SUBSHELL#
+#################
