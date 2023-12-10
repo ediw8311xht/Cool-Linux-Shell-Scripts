@@ -1,12 +1,9 @@
 #!/usr/bin/env bash
 
 
-###################
-( #-BEGIN-SUBSHELL#
-###################
-
 ORDER_MONITORS=('DP' 'DisplayPort' 'HDMI' 'VGA' 'DVI' 'TV')
 ROTATE_MONITOR='(DP|DisplayPort).*'
+PRIMARY_MONITOR='HDMI'
 
 function get_monitors() {
     printf '%s\n' "$(xrandr --listmonitors | grep -Po "(?<= )(HDMI|VGA|DVI|DP|TV|DisplayPort)[^\ ]+$")"
@@ -33,7 +30,6 @@ function update_monitor_export() {
 
     for i in "${ORDER_MONITORS[@]}" ; do
         if mon_g="$(grep -Pio "${i}[^ \t\n]*" <<< "${gms[@]}")" ; then
-            echo "${mon_g}"
             hide_MONITORS+=("${mon_g}")
         fi
     done
@@ -42,6 +38,7 @@ function update_monitor_export() {
         export "MONITOR_${i}"="${hide_MONITORS[i-1]}"
         [[ "${hide_Z}" -eq '1' ]] && echo "i3wm.monitor${i}: ${hide_MONITORS[i-1]}" >> "$HOME/.Xresources"
         [[ "${i}"      -gt   0 ]] && xrandr --output "${hide_MONITORS[i-1]}" --right-of "${hide_MONITORS[i-2]}"
+        [[ "${hide_MONITORS[i]}" =~ "${PRIMARY_MONITOR}" ]] && xrandr --output "${hide_MONITORS[i]}" --primary
     done
 }
 
@@ -60,6 +57,3 @@ function handle_args() {
 
 handle_args "${@}"
 
-#################
-) #-END-SUBSHELL#
-#################
