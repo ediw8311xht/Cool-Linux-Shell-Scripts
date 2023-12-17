@@ -38,7 +38,10 @@ function update_monitor_export() {
         export "MONITOR_${i}"="${hide_MONITORS[i-1]}"
         [[ "${hide_Z}" -eq '1' ]] && echo "i3wm.monitor${i}: ${hide_MONITORS[i-1]}" >> "$HOME/.Xresources"
         [[ "${i}"      -gt   0 ]] && xrandr --output "${hide_MONITORS[i-1]}" --right-of "${hide_MONITORS[i-2]}"
-        [[ "${hide_MONITORS[i]}" =~ "${PRIMARY_MONITOR}" ]] && xrandr --output "${hide_MONITORS[i]}" --primary
+        if [[ "${hide_MONITORS[i]}" =~ "${PRIMARY_MONITOR}" ]] ; then
+            xrandr --output "${hide_MONITORS[i]}" --primary
+            export PRIMARY_MONITOR="${hide_MONITORS[i]}"
+        fi
     done
 }
 
