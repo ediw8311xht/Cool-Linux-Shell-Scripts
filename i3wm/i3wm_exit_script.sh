@@ -22,4 +22,4 @@ shut_g() {
 }
 
 save_bash_history
-#shut_g "${@}"
+shut_g "${@}"
