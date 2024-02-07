@@ -1,15 +1,11 @@
 #!/usr/bin/env bash
 
-
-ORDER_MONITORS=('DP' 'DisplayPort' 'HDMI' 'VGA' 'DVI' 'TV')
-ROTATE_MONITOR='(DP|DisplayPort).*'
-PRIMARY_MONITOR='HDMI'
-
-function get_monitors() {
-    printf '%s\n' "$(xrandr --listmonitors | grep -Po "(?<= )(HDMI|VGA|DVI|DP|TV|DisplayPort)[^\ ]+$")"
+get_monitors() {
+    xrandr --listmonitors | grep -Po "(?<= )(HDMI|VGA|DVI|DP|TV|DisplayPort)[^\ ]+$"
 }
 
-function rotate_m() {
+rotate_m() {
+    local ROTATE_MONITOR='(DP|DisplayPort).*'
     if xrandr  -q | grep -Pio "${ROTATE_MONITOR}" | grep -Pio '(left|right)[ \t]*[(]' ; then
         xrandr --output "${1}" --rotate "normal"
     else
@@ -19,45 +15,44 @@ function rotate_m() {
     "${HOME}/bin/xwallpaperauto.sh" --silent
 }
 
-function update_monitor_export() {
-    local hide_MONITORS=();
-    local hide_Z='0'
-    local gms=("$(get_monitors)")
+update_monitor_export() {
+    local ORDER_MONITORS=('DP' 'DisplayPort' 'HDMI' 'VGA' 'DVI' 'TV')
+    local primary='HDMI'
+    local MONS lmon j
+    MONS="$(get_monitors)"
 
-    if [[ ! "${1,,}" =~ nox ]] && [[ -f "$HOME/.Xresources" ]] ; then
-        local hide_Z="1" ; sed -i '/^i3\(wm\)\?[.]\(MONITOR\|monitor\).*/d' "$HOME/.Xresources"
-    fi
+    [[ ! -f "${HOME}/.Xresources" ]] && return 1
 
+    sed -i '/^i3wm[.]\(primary\|other\)_monitor.*/Id' "$HOME/.Xresources"
 
-    for i in "${ORDER_MONITORS[@]}" ; do
-        if mon_g="$(grep -Pio "${i}[^ \t\n]*" <<< "${gms[@]}")" ; then
-            hide_MONITORS+=("${mon_g}")
-        fi
-    done
+    for cm in "${ORDER_MONITORS[@]}" ; do
+        gmon="$(grep -i "${cm}" <<< "${MONS}")"
 
-    while [[ "$((++i))" -le "${#hide_MONITORS[@]}" ]] ; do
-        export "MONITOR_${i}"="${hide_MONITORS[i-1]}"
-        [[ "${hide_Z}" -eq '1' ]] && echo "i3wm.monitor${i}: ${hide_MONITORS[i-1]}" >> "$HOME/.Xresources"
-        [[ "${i}"      -gt   0 ]] && xrandr --output "${hide_MONITORS[i-1]}" --right-of "${hide_MONITORS[i-2]}"
-        if [[ "${hide_MONITORS[i]}" = *"${PRIMARY_MONITOR}"* ]] ; then
-            xrandr --output "${hide_MONITORS[i]}" --primary
-            export PRIMARY_MONITOR="${hide_MONITORS[i]}"
+        [[ -z "${gmon}" ]] && continue
+
+        [[ -n "${lmon}" ]] && xrandr --output "${gmon}" --right-of "${lmon}"
+
+        lmon="${gmon}"
+
+        if [[ "${gmon}" = *"${primary}"* ]] ; then
+            xrandr --output "${gmon}" --primary
+            echo "i3wm.primary_monitor: ${gmon}" >> "$HOME/.Xresources"
+            export PRIMARY_MONITOR="${gmon}"
+        else
+            echo "i3wm.other_monitor_$((++j)): ${gmon}" >> "$HOME/.Xresources"
         fi
     done
 }
 
-function handle_args() {
-    if [[ -z "${1}" ]] ; then
-        update_monitor_export "${@}"
-    else
-        local a="${1}" ; shift 1
-        case "${a}" in
-               get) get_monitors
-        ;;  rotate) rotate_m "${@}"
-        ;;       *) update_monitor_export "${@}"
-        ;; esac
-    fi
+handle_args() {
+    local a="${1}" ; shift 1
+    case "${a}" in
+           get) get_monitors
+    ;;  rotate) rotate_m "${@}"
+    ;;       *) update_monitor_export "${@}"
+    ;; esac
+    [[ -z "${*}" ]] && return 0
+    handle_args "${@}"
 }
 
 handle_args "${@}"
-

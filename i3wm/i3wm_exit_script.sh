@@ -13,7 +13,7 @@ save_bash_history() {
 shut_g() {
     local count=0
     local max_iterations=10
-    save_bash_history
+    #save_bash_history
     while [[ "${count}" -lt "${max_iterations}" ]] && ps ax | grep -qPi 'd[e]luged' ; do
         killall 'deluged'
         sleep 1
@@ -21,5 +21,5 @@ shut_g() {
     i3-msg 'exit'
 }
 
-save_bash_history
+#save_bash_history
 shut_g "${@}"
