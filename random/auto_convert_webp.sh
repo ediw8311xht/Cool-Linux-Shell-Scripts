@@ -1,24 +1,41 @@
 #!/bin/bash
 
 
-replace_g() {
-    while read -r -d $'\0' oldfile ; do
+####################
+( #-START-SUBSHELL-#
+####################
 
-        newfile="${oldfile::-5}.png"
-        echo $'\n\n'"    IN:  ${oldfile}"$'\n'"    OUT: ${newfile}"
+replace() {
+    [[ ! -f "${1}" ]] && return 1
 
-        if dwebp "${oldfile}" -o "${newfile}" && [ -f "${newfile}" ] ; then
-            echo '>>>>-SUCCESS:-Png-created-successfully'
+    local new_file="${1/[.]webp/${2}.png}"
 
-            mv "${oldfile}" "${1:-"/home/$USER/.Trash"}"    \
-                && echo '>>>> :  '"${oldfile}"'  DELETED'   \
-                || echo "!!!! ERROR: FILE NOT DELETED !!!!"
-        else
-            echo "!!!!-ERROR:-FILE-NOT-CREATED" ; continue
-        fi
-    done < <(find . -name "*.webp" -printf '%f\0')
-
+    printf "\t\t\t\tin: %s, out: %s\n" "${1}" "${new_file}"
+    if dwebp "${1}" -o "${new_file}" &>/dev/null && [[ -f "${new_file}" ]] ; then
+        return 0
+    fi
+    return 2
 }
 
-cd "${1:-"/home/$USER/Pictures"}" || exit
-replace_g "${@: 2}"
+main_replace() {
+    local dir="${1:-"${HOME}/Pictures"}"
+    local append="${2:-""}"
+    cd "${dir}" || return 1
+    while IFS= read -r -d $'\0' ifile ; do
+        replace "${ifile}" "${append}"
+        case $? in
+            0) trash-put "${ifile}"
+        ;;  1) echo "Not found: ${ifile}"
+        ;;  *) echo "Error: _${ifile}_"
+        ;; esac
+    done < <(find . -type f -name "*.webp" -print0)
+}
+#dir="${1:-"${HOME}/Pictures"}"
+#append="${2:-""}"
+#cd "${dir}" || return 1
+#find . -type f -name "*.webp" -print0
+main_replace "${@}"
+
+####################
+) #---END-SUBSHELL-#
+####################
