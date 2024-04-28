@@ -7,11 +7,15 @@ DM_SETTINGS=(
     -i
     -l  '19'
     -b
+    -x  '20'
     -y  '20'
     -w  '500'
-    -nf '#01FF00'
+    -sb '#002255'
+    -sf '#FFFFFF'
+    -nf '#999999'
     -nb '#000000'
     -fn 'Hermit:style=Regular:pixelsize=12:antialias=true:autohint=true'
+    -p  '>'
 )
 
 function main() {

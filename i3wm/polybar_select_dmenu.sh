@@ -7,7 +7,6 @@
 function main() {
     local choice=""
     cd "$HOME/.config/polybar/configs/" || return "$?"
-    #find ./* -type f | "$HOME/bin/my_dmenu.sh"
     choice="$(find . -type f -printf "%f\n" | "$HOME/bin/my_dmenu.sh")"
 
     echo "${choice}"

@@ -10,7 +10,7 @@
 TIMEOUT="3"
 CONFIG_ELSE="${HOME}/.i3/config"
 [[ -f "${HOME}/.i3/config" ]] || CONFIG_ELSE="${HOME}/.config/i3/config"
-FG_FONT='xft:monospace 15'
+FG_FONT='xft:monospace 10'
 
 #---------------------------------------------------------#
 #------------------------------FUNCTIONS------------------#
