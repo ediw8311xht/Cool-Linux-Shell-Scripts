@@ -5,11 +5,10 @@
 ####################
 
 function main() {
-    tmpfile="$(mktemp /tmp/mdmenu.XXXXXX)"
-    trap "trash-put '${tmpfile}'" EXIT
+    local choice=""
     cd "$HOME/.config/polybar/configs/" || return "$?"
-    find ./* -type f >> "${tmpfile}"
-    choice="$(dmenu -b -nb "#000000" -i -l 10 -fn "Office Code Pro:pixelsize=20:antialias=true:autohint=true" -p "OPEN:" < "${tmpfile}")" || exit 1
+    #find ./* -type f | "$HOME/bin/my_dmenu.sh"
+    choice="$(find . -type f -printf "%f\n" | "$HOME/bin/my_dmenu.sh")"
 
     echo "${choice}"
 
