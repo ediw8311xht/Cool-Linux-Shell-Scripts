@@ -11,33 +11,35 @@ COOKIES="cookies.txt"
 REDIRECTS='0'
 USING="curl"
 
+CURL_ARGS=(
+      --max-redirs "${REDIRECTS}"
+      --remote-header-name
+      --remote-name
+      --location
+)
+
+YT_DLP_ARGS=(
+    -o "%(title)s.%(ext)s"
+    --restrict-filename
+)
+
 with_wget() {
     echo "NOT IMPLEMENTED"; exit 1
 }
 
 with_curl() {
     if [[ -f "${COOKIES}" ]] ; then
-        curl    --cookie     "${COOKIES}"           \
-                --max-redirs "${REDIRECTS}"         \
-                --location   "${1}"                 \
-                --remote-header-name                \
-                --remote-name
-    else
-        curl    --max-redirs "${REDIRECTS}"         \
-                --location   "${1}"                 \
-                --remote-header-name                \
-                --remote-name
+        CURL_ARGS+=( --cookie "${COOKIES}" )
     fi
-            #> "${OUT_DIR}/${1//[\/:]/_}"
+    curl "${CURL_ARGS[@]}" "${1}"
 }
 
 
 with_ytdl() {
     if [[ -f "${COOKIES}" ]] ; then
-        yt-dlp --cookies "${COOKIES}" -o "%(title)s.%(ext)s" --restrict-filename "${1}"
-    else
-        yt-dlp -o "%(title)s.%(ext)s" --restrict-filename "${1}"
+        YT_DLP_ARGS+=( --cookies "${COOKIES}" )
     fi
+    yt-dlp  "${CURL_ARGS[@]}" "${1}"
 }
 
 getter() {
@@ -100,7 +102,7 @@ help_function() {
 handle_args() {
     case "${1,,}" in
        -h|--help) help_function  ;  exit 0
-    ;; -f)     INPUT_FILE="${2}" ; shift 2
+    ;; -i)     INPUT_FILE="${2}" ; shift 2
     ;; -o)        OUT_DIR="${2}" ; shift 2
     ;; -r)      REDIRECTS="${2}" ; shift 2
     ;; -y)          USING="ytdl" ; shift 1
