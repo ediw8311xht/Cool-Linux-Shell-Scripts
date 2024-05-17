@@ -17,8 +17,9 @@ rotate_m() {
 
 update_monitor_export() {
     local ORDER_MONITORS=('DP' 'DisplayPort' 'HDMI' 'VGA' 'DVI' 'TV')
-    local primary='HDMI'
-    local MONS lmon j
+    local ORDER_MONITORS=('HDMI-2' 'DP' 'HDMI-3') # IGNORE #
+    local primary='DP'
+    local MONS gmon lmon i
     MONS="$(get_monitors)"
 
     [[ ! -f "${HOME}/.Xresources" ]] && return 1
@@ -39,7 +40,7 @@ update_monitor_export() {
             echo "i3wm.primary_monitor: ${gmon}" >> "$HOME/.Xresources"
             export PRIMARY_MONITOR="${gmon}"
         else
-            echo "i3wm.other_monitor_$((++j)): ${gmon}" >> "$HOME/.Xresources"
+            echo "i3wm.other_monitor_$((++i)): ${gmon}" >> "$HOME/.Xresources"
         fi
     done
 }
