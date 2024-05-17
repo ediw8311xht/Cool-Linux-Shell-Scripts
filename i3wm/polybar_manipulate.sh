@@ -15,10 +15,10 @@ function launch_polybar() {
 function move_polyz() {
 
     case "${1,,}" in
-                 left)  sed -i  's/^\([ \t]*\)offset[-]x/;\1offset-x/'                      "${CONFIG_INI}"
-        ;;      right)  sed -i  's/^\([ \t]*\);\([ \t]*\)offset[-]x/\1\2offset-x/'          "${CONFIG_INI}"
-        ;;         up)  sed -i  's/^[ \t]*bottom[ \t]*[=][ \t]*true/    bottom = false/'    "${CONFIG_INI}"
-        ;;       down)  sed -i  's/^[ \t]*bottom[ \t]*[=][ \t]*false/    bottom = true/'    "${CONFIG_INI}"
+                 left)  sed -i --follow-symlinks 's/^\([ \t]*\)offset[-]x/;\1offset-x/'                      "${CONFIG_INI}"
+        ;;      right)  sed -i --follow-symlinks 's/^\([ \t]*\);\([ \t]*\)offset[-]x/\1\2offset-x/'          "${CONFIG_INI}"
+        ;;         up)  sed -i --follow-symlinks 's/^[ \t]*bottom[ \t]*[=][ \t]*true/    bottom = false/'    "${CONFIG_INI}"
+        ;;       down)  sed -i --follow-symlinks 's/^[ \t]*bottom[ \t]*[=][ \t]*false/    bottom = true/'    "${CONFIG_INI}"
 
         ;;        all)  DIS_MODE='all'
         ;;    primary)  DIS_MODE='primary'
@@ -27,7 +27,7 @@ function move_polyz() {
         ;;       show)  killall "polybar" ; launch_polybar & disown
         ;;       hide)  killall "polybar"
         ;;     toggle)  killall "polybar" || launch_polybar "${DIS_MODE}" & disown
-        ;;     config)  cp "${CONFIG_DIR}/${2}" "${CONFIG_INI}"
+        ;;     config)  killall "polybar"; trash-put "${CONFIG_INI}"; ln -s "${CONFIG_DIR}/${2}" "${CONFIG_INI}"; launch_polybar & disown
                         return "$?"
 
         ;;          *)  echo "ERROR: INVALID ARGUMENT, '${1}'">&2
