@@ -39,9 +39,9 @@ read_from_data_file() {
     DPOS="$(        sed -n 3p "${DATA_FILE}"   )"
     PICPOS="$(      sed -n 4p "${DATA_FILE}"   )"
     PARGS="$(       sed -n 5p "${DATA_FILE}"   )"
-    [[        -d "${MAIN_DIR}" ]] || MAIN_DIR="$HOME/Pictures/Wallpapers"
-    [[   "${DPOS}" =~ ^[0-9]+$ ]] || DPOS=0
-    [[ "${PICPOS}" =~ ^[0-9]+$ ]] || PICPOS=0
+    [[             -d "${MAIN_DIR}" ]] || MAIN_DIR="$HOME/Pictures/Wallpapers"
+    [[   "${DPOS}" =~ ^[1-9][0-9]*$ ]] || DPOS=0
+    [[ "${PICPOS}" =~ ^[1-9][0-9]*$ ]] || PICPOS=0
 }
 
 update_data_file() {
@@ -52,11 +52,11 @@ update_data_file() {
 }
 
 pic_find() {
-    find "${1}" \( -iname '*.png' -o -iname '*.jpg' \) -printf '%p\n' | sort | uniq
+    find "${1}" -mindepth 1 -maxdepth 1 -iname '*.jpg' -printf '%p\n' | sort -u
 }
 
 dirs_with_pics() {
-    find "${MAIN_DIR}" -mindepth 1 -maxdepth 2 \( -iname '*.png' -o -iname '*.jpg' \) -printf '%h\n' | sort | uniq
+    find "${MAIN_DIR}" -mindepth 2 -maxdepth 2 -iname '*.jpg' -printf '%h\n' | sort -u
 }
 
 handle_args() {
