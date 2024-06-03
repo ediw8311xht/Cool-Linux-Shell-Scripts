@@ -5,7 +5,7 @@ get_monitors() {
 }
 
 rotate_m() {
-    local ROTATE_MONITOR='(DP|DisplayPort).*'
+    local ROTATE_MONITOR="${1}.*"
     if xrandr  -q | grep -Pio "${ROTATE_MONITOR}" | grep -Pio '(left|right)[ \t]*[(]' ; then
         xrandr --output "${1}" --rotate "normal"
     else
@@ -41,6 +41,7 @@ update_monitor_export() {
             export PRIMARY_MONITOR="${gmon}"
         else
             echo "i3wm.other_monitor_$((++i)): ${gmon}" >> "$HOME/.Xresources"
+            export MON_${i}="${gmon}"
         fi
     done
 }
