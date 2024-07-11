@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+get_resolution() {
+    xrandr | grep "^${1} " | grep -Po "[0-9]+x[0-9]+"
+}
+
 get_monitors() {
     xrandr --listmonitors | grep -Po "(?<= )(HDMI|VGA|DVI|DP|TV|DisplayPort)[^\ ]+$"
 }
@@ -15,46 +19,63 @@ rotate_m() {
     "${HOME}/bin/xwallpaperauto.sh" --silent
 }
 
+set_xrec() {
+    if [[ -z "${1}" ]] || [[ -z "${2}" ]] ; then return 1; fi
+    local res
+    local s=( "i3wm.${1}: ${2}" )
+
+    mapfile -t -d $'\n' res < <(get_resolution "${2}" | tr "x" $'\n')
+    if [[ "${#res[@]}" -eq 2 ]] ; then
+        s+=( "i3wm.${1}_resx: ${res[0]}"
+             "i3wm.${1}_resy: ${res[1]}" )
+    fi
+    printf "%s\n" "${s[@]}" ""
+    printf "%s\n" "${s[@]}" >> "${HOME}/.Xresources"
+}
+
+handle_primary() {
+    xrandr --output "${1}" --primary
+    set_xrec "primary_monitor" "${1}"
+    export "PRIMARY_MONITOR"="${1}"
+}
+
+handle_other() {
+    set_xrec "other_monitor_${2}" "${1}"
+    export "MON_${2}"="${1}"
+}
+
 update_monitor_export() {
     local ORDER_MONITORS=('DP' 'DisplayPort' 'HDMI' 'VGA' 'DVI' 'TV')
-    local ORDER_MONITORS=('HDMI-2' 'DP' 'HDMI-3')
+    local ORDER_MONITORS=('HDMI-2' 'DP' 'HDMI-3') #----------IGNORE---------#
     local primary='DP'
     local MONS gmon lmon i
     MONS="$(get_monitors)"
 
     [[ ! -f "${HOME}/.Xresources" ]] && return 1
 
-    sed -i '/^i3wm[.]\(primary\|other\)_monitor.*/Id' "$HOME/.Xresources"
+    sed -i '/^i3wm[.]\(primary\|other\)_monitor.*/Id' "${HOME}/.Xresources"
 
     for cm in "${ORDER_MONITORS[@]}" ; do
-        gmon="$(grep -i "${cm}" <<< "${MONS}")"
-
+        gmon="$(grep -Fi "${cm}" <<< "${MONS}")"
         [[ -z "${gmon}" ]] && continue
-
         [[ -n "${lmon}" ]] && xrandr --output "${gmon}" --right-of "${lmon}"
 
-        lmon="${gmon}"
-
         if [[ "${gmon}" = *"${primary}"* ]] ; then
-            xrandr --output "${gmon}" --primary
-            echo "i3wm.primary_monitor: ${gmon}" >> "$HOME/.Xresources"
-            export PRIMARY_MONITOR="${gmon}"
+            handle_primary "${gmon}"
         else
-            echo "i3wm.other_monitor_$((++i)): ${gmon}" >> "$HOME/.Xresources"
-            export MON_${i}="${gmon}"
+            handle_other "${gmon}" "$((++i))"
         fi
+        lmon="${gmon}"
     done
+    xrdb "${HOME}/.Xresources"
 }
 
 handle_args() {
-    local a="${1}" ; shift 1
-    case "${a}" in
-           get) get_monitors
-    ;;  rotate) rotate_m "${@}"
-    ;;       *) update_monitor_export "${@}"
+    case "${1,,}" in
+           "get") get_monitors
+    ;;  "rotate") rotate_m "${@:2}"
+    ;;        "") update_monitor_export
     ;; esac
-    [[ -z "${*}" ]] && return 0
-    handle_args "${@}"
 }
 
 handle_args "${@}"
