@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 get_resolution() {
     xrandr | grep "^${1} " | grep -Po "[0-9]+x[0-9]+"
@@ -74,7 +74,7 @@ handle_args() {
     case "${1,,}" in
            "get") get_monitors
     ;;  "rotate") rotate_m "${@:2}"
-    ;;        "") update_monitor_export
+    ;;         *) update_monitor_export
     ;; esac
 }
 

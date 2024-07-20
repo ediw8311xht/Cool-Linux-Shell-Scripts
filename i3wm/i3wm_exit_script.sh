@@ -14,6 +14,7 @@ shut_g() {
     local count=0
     local max_iterations=10
     #save_bash_history
+    trash-put "/tmp/tmplf.*"
     while [[ "${count}" -lt "${max_iterations}" ]] && ps ax | grep -qPi 'd[e]luged' ; do
         killall 'deluged'
         sleep 1
