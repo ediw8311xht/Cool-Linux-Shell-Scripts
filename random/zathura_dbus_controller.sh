@@ -46,18 +46,17 @@ script_main() (
     get_application_bus_names() { get_user_bus_names | grep -Fz "${APP_NAME}" | sort -zr; }
     #-------SET-GET-CALL----------#
     get_dbus_property()         { busctl --user get-property "${1}" "${APP_ORG}" "${APP_INT}" "${2}" | grep -Pio '^[^ ]+[ ]*\K.+(?=[ ]*)$'; }
-    set_dbus_property()         { busctl --user set-property "${1}" "${APP_ORG}" "${APP_INT}" "${2}" "${3}" "${4}"; }
     call_dbus_method()          { busctl --user call         "${1}" "${APP_ORG}" "${APP_INT}" "${@:2}"; }
     get_filename()              { get_dbus_property "${1}" "filename"  | grep -Pio '(?<=^["]).*(?=["][ ]*$)'; }
+    #set_dbus_property()         { busctl --user set-property "${1}" "${APP_ORG}" "${APP_INT}" "${2}" "${3}" "${4}"; }
+    #exec_command()              { busctl --user "${1}" "${APP_ORG}" "${APP_INT}" "${2}" "${3}" "${4}"; }
 
-    # busctl --user call org.pwmt.zathura.PID-60557 /org/pwmt/zathura org.pwmt.zathura GotoPage u 10
     #-------PAGE-NUMBER-----------#
     get_page_number()           { get_dbus_property "$(get_most_recent)" "pagenumber"; }
     set_page_number()           { call_dbus_method "$(get_most_recent)" "GotoPage" "u" "${1}"; }
     next_page()                 { set_page_number "$(( "$(get_page_number)" + 1))"; }
     prev_page()                 { set_page_number "$(( "$(get_page_number)" - 1))"; }
 
-    #exec_command()              { busctl --user "${1}" "${APP_ORG}" "${APP_INT}" "${2}" "${3}" "${4}"; }
     get_bus_by_filename() {
         if [[ "${FILENAME}" = "" ]] ; then
             cat "${MOST_RECENT}"
