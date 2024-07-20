@@ -32,7 +32,7 @@ open_emacs_client() {
 
 restart_emacs_daemon() {
     kill_emacs_daemon
-    sleep 0.5
+    sleep 1
     start_emacs_daemon
 }
 

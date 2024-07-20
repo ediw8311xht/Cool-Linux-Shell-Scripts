@@ -97,7 +97,7 @@ script_main() (
             case "${1}" in
                 -g|--get)           get_busses "reset_recent"
             ;;  -s|--set)           set_most_recent "$(get_bus_by_filename)"
-            ;;  -S|--set-dmenu)     FILENAME="$(dmenu_get_filename)"; set_most_recent "$(get_bus_by_filename)"
+            ;;  -d|--set-dmenu)     FILENAME="$(dmenu_get_filename)"; set_most_recent "$(get_bus_by_filename)"
             ;;  -f|--files)         get_filenames
             ;;  -c|--current)       most_recent_filename
             ;;  -p|--pagenumber)    get_page_number
