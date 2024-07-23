@@ -10,20 +10,18 @@ L_PICS=()
 SILENT='0'
 DATA_FILE="$HOME/bin/Data/xwallautoDATA.txt"
 
+my_printer() {
+    printf "%3d\t%s" "${@}"
+}
 notify_wallpaper_change() {
+    local string
     dunstctl close-all
-    notify_args=(
-        -h string:bgcolor:"#000000"
-        -h string:fgcolor:"#00FF00"
-        -h string:frcolor:"#00FF00"
-        -t "10000"
-    )
     string=(
-        "xwallpaper [${PARGS[*]:---focus}]"
-        "${DPOS} - ${L_DIRS[DPOS]##*/}"
-        "${PICPOS} - ${L_PICS[${PICPOS}]##*/}"
+        "xwallpaper ${PARGS[*]:---focus}"
+        "$(my_printer "${DPOS}"  "${L_DIRS[DPOS]##*/}")"
+        "$(my_printer "${PICPOS}"  "${L_PICS[${PICPOS}]##*/}")"
     )
-    notify-send "${notify_args[@]}" "${string[*]}"
+    notify-send "${string[0]}" "${string[*]:1}"
 }
 
 init_data_file() {

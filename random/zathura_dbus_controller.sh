@@ -95,7 +95,7 @@ script_main() (
         get_busses
         while [[ "${#}" -gt 0 ]] ; do
             case "${1}" in
-                -g|--get)           get_busses "reset_recent"
+                -g|--get)           get_busses "reset_recent" && notify-send "zathura_dbus_controller.sh" $'\nupdated bus names'
             ;;  -s|--set)           set_most_recent "$(get_bus_by_filename)"
             ;;  -d|--set-dmenu)     FILENAME="$(dmenu_get_filename)"; set_most_recent "$(get_bus_by_filename)"
             ;;  -f|--files)         get_filenames
