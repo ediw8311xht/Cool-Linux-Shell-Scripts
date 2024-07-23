@@ -1,8 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-####################
-( #-START-SUBSHELL-#
-####################
 DM_SETTINGS=(
     -i
     -l  '19'
@@ -27,7 +24,3 @@ function main() {
 }
 
 main "${@}"
-
-####################
-) #---END-SUBSHELL-#
-####################
