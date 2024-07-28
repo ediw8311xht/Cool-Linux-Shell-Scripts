@@ -2,16 +2,16 @@
 
 DM_SETTINGS=(
     -i
-    -l  '19'
+    -l  '40'
     -b
     -x  '20'
     -y  '20'
-    -w  '500'
-    -sb '#002255'
-    -sf '#FFFFFF'
-    -nf '#999999'
+    -w  '800'
+    -sb '#222222'
+    -sf '#00FF00'
+    -nf '#AAAAAA'
     -nb '#000000'
-    -fn 'Hermit:style=Regular:pixelsize=12:antialias=true:autohint=true'
+    -fn 'InputMono:style=Regular:pixelsize=12:antialias=true:autohint=true'
     -p  '>'
 )
 

@@ -10,7 +10,7 @@ get_monitors() {
 
 rotate_m() {
     local ROTATE_MONITOR="${1}.*"
-    if xrandr  -q | grep -Pio "${ROTATE_MONITOR}" | grep -Pio '(left|right)[ \t]*[(]' ; then
+    if xrandr  -q | grep -Pio "${ROTATE_MONITOR}" | grep -Pioq '(left|right)[ \t]*[(]' ; then
         xrandr --output "${1}" --rotate "normal"
     else
         xrandr --output "${1}" --rotate "${2}"
