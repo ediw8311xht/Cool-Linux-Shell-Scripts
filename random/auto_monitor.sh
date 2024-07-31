@@ -46,7 +46,6 @@ handle_other() {
 
 update_monitor_export() {
     local ORDER_MONITORS=('DP' 'DisplayPort' 'HDMI' 'VGA' 'DVI' 'TV')
-    local ORDER_MONITORS=('HDMI-2' 'DP' 'HDMI-3') #----------IGNORE---------#
     local primary='DP'
     local MONS gmon lmon i
     MONS="$(get_monitors)"
