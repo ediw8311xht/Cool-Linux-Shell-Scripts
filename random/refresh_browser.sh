@@ -6,7 +6,7 @@
 refresh_main() {
     local script_name="${0##*/}"
     local sendkey="ctrl+r"
-    local notify=true
+    local notify=false
     local browser="${BROWSER##*/}"
     local backwindow
 
@@ -30,8 +30,8 @@ refresh_main() {
     handle_args() {
         while [[ -n "${1}" ]] ; do
             case "${1,,}" in
-                -n|--no-notify) notify=false
-            ;;       -h|--hard) sendkey='ctrl+shift+r'
+                -n|--notify) notify=true
+            ;;    -h|--hard) sendkey='ctrl+shift+r'
             ;; -*) script_notify "invalid option" && exit 1
             ;;  *) browser="${1}"
             ;; esac
