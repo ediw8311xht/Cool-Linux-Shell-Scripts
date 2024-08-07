@@ -3,7 +3,9 @@
 rg_fzf_func() {
 
     local lf_script="${HOME}/bin/cd_from_lf.sh"
-    local outarr dir file
+    local outarr
+    local dir
+    local file
     local RG_PREFIX="rg --no-search-zip --column --line-number --no-heading --color=always --smart-case"
     local INITIAL_QUERY="${*:-}"
     local OPTIONS=(
