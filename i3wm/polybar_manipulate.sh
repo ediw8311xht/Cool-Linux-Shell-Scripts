@@ -13,6 +13,16 @@ polybar_manipulate_main() (
         fi
     }
 
+    select_dmenu() {
+        local choice=""
+        cd "$HOME/.config/polybar/configs/" || return "$?"
+        choice="$(find . -type f -printf "%f\n" | "$HOME/bin/my_dmenu.sh")"
+
+        echo "${choice}"
+
+        "${HOME}/bin/polybar_manipulate.sh" "CONFIG" "${choice}"
+    }
+
     move_polyz() {
 
         case "${1,,}" in

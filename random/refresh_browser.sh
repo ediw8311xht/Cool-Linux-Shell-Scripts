@@ -41,7 +41,7 @@ refresh_main() {
 
     xdotool_com() {
         xdotool search --onlyvisible --name "${browser}"    \
-            windowactivate --sync key --clearmodifiers --delay 200 "${sendkey}" \
+            windowactivate --sync key --clearmodifiers --delay 100 "${sendkey}" \
             && xdotool windowactivate "${backwindow}" 
     }
 
