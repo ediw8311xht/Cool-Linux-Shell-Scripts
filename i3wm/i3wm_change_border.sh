@@ -5,7 +5,7 @@
 ####################
 
 set -eu
-
+DMENU_SCRIPT="${HOME}/bin/my_dmenu.sh"
 DIR_I3="${HOME}/.config/i3/"
 DIR_I3_BORDER='borders/'
 DIR_I3_COMP="${DIR_I3}/${DIR_I3_BORDER}/"
@@ -15,7 +15,7 @@ XREC_VAR='i3wm.BORDER_FILE'
 
 write_xrec() {
     echo "${1}"
-    if grep -q "^${XREC_VAR}:" "${XREC_FILE}" ; then
+    if grep -qF "${XREC_VAR}:" "${XREC_FILE}" ; then
         sed -i -E "s#^(${XREC_VAR}:).*#\1 ${DIR_I3_BORDER}${1}#" "${XREC_FILE}"
     else
         echo "${XREC_VAR} not defined in ${XREC_FILE}"
@@ -25,15 +25,12 @@ write_xrec() {
 
 
 swap_border() {
-    local BFILE=''
-    local DM_FONT='Office Code Pro:pixelsize=17:antialias=true:autohint=true'
-
-    if [[ -d "${DIR_I3}" ]] && [[ -d "${DIR_I3_COMP}" ]] ; then
-        cd "${DIR_I3_COMP}"
-        BFILE="$(dmenu -b -i -nf '#00FF00' -nb '#000000' -l 10 -fn "${DM_FONT}" \
-            < <(find . -type f -iname "border*" -printf '%f\n'))"
-        [[ ! -f "${BFILE}" ]] && exit 0
-        write_xrec "${BFILE}"
+    local border_file
+    if [[ -d "${DIR_I3_COMP}" ]] ; then
+        border_file="$(find "${DIR_I3_COMP}" -type f -iname "border*" -printf '%f\n' | "${DMENU_SCRIPT}")"
+        if [[ -f "${DIR_I3_COMP}/${border_file}" ]] ; then
+            write_xrec "${border_file}"
+        fi
     else
         echo "ERROR IN SWAP BORDER:"
         echo -e "\t ${!DIR_I3*}"
