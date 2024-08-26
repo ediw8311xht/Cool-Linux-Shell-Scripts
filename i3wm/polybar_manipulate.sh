@@ -14,10 +14,15 @@ polybar_manipulate_main() (
         fi
     }
     config_select() {
-        killall "polybar"
-        trash-put "${CONFIG_INI}"
-        ln -s "${CONFIG_DIR}/${1}" "${CONFIG_INI}"
-        launch_polybar & disown
+        if [[ -f "${CONFIG_DIR}/${1}" ]] ; then
+            killall "polybar"
+            trash-put "${CONFIG_INI}"
+            ln -s "${CONFIG_DIR}/${1}" "${CONFIG_INI}"
+            launch_polybar & disown
+        else
+            echo "ERROR: Config not found '${CONFIG_DIR}/${1}'">&2
+            exit 1
+        fi
     }
     toggle_polybar() {
         if pgrep -x 'polybar' ; then
@@ -28,9 +33,9 @@ polybar_manipulate_main() (
     }
     select_dmenu() {
         local choice=""
-        choice="$( find "${CONFIG_DIR}" -type f -printf "%f\n" | "${DMENU_SCRIPT}" )"
-        echo "${choice}"
-        config_select "${choice}"
+        if choice="$( find "${CONFIG_DIR}" -type f -printf "%f\n" | "${DMENU_SCRIPT}" )" ; then
+            config_select "${choice}"
+        fi
     }
     error() {
         echo "ERROR: ${1}">&2

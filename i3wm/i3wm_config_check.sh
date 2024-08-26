@@ -9,6 +9,7 @@
 #---------------------------------------------------------#
 TIMEOUT="3"
 CONFIG_ELSE="${HOME}/.i3/config"
+CACHE_ERROR_FILE="${HOME}/.cache/i3_error.txt"
 [[ -f "${HOME}/.i3/config" ]] || CONFIG_ELSE="${HOME}/.config/i3/config"
 FG_FONT='xft:monospace 10'
 
@@ -44,12 +45,11 @@ HANDLE_OPTIONS() {
 }
 
 LOGIC() {
-    OUT="$(i3 -C "${CONFIG_ELSE}")"
-    if 	 [[ "$?" -ne 0 ]] || [[ -n "${OUT}" ]] ; then
+    if 	! i3 -C "${CONFIG_ELSE}"  &> "${CACHE_ERROR_FILE}" ; then
     	i3-input -f "${FG_FONT}" -l 1 -P '!![Error in your config file]!!'
-    	exit 0
+    	exit 1
     elif [[ "${o_NOASK:-"$(ASK "${TIMEOUT}")"}" =~ ^[^yY]*$ ]] ; then
-    	timeout "${TIMEOUT}"\
+    	timeout "${TIMEOUT}" \
        	i3-input -l 1 -f "${FG_FONT}" -P 'NOT Reloading/Restarting'; exit 0
     fi
 
