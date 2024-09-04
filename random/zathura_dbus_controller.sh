@@ -4,23 +4,32 @@
 # For line 34-35, matching on ${DELIM}
 
 script_main() (
-    set -eu
+    #set -eu
+    #-------ZATHURA-DB-VARS-------#
+        ZATHURA_DATA_DIR="${XDG_DATA_HOME:-"${HOME}/.local/share"}"
+        HFILE="${ZATHURA_DATA_DIR}/zathura/bookmarks.sqlite"
     #-------APP-INFO--------------#
-    BUSLIST=()
-    DMENU_SCRIPT="${HOME}/bin/my_dmenu.sh"
-    if [[ ! -f "${DMENU_SCRIPT}" ]] ; then DMENU_SCRIPT="dmenu"; fi
-    SCRIPT_NAME="$(basename "${0}")"
-    APP_NAME='zathura'
-    APP_ORG='/org/pwmt/zathura'
-    APP_INT='org.pwmt.zathura'
+        BUSLIST=()
+        DMENU_SCRIPT="${HOME}/bin/my_dmenu.sh"
+        if [[ ! -f "${DMENU_SCRIPT}" ]] ; then DMENU_SCRIPT="dmenu"; fi
+        SCRIPT_NAME="$(basename "${0}")"
+        APP_NAME='zathura'
+        APP_ORG='/org/pwmt/zathura'
+        APP_INT='org.pwmt.zathura'
     #-------DATA------------------#
-    DATA_DIR="${HOME}/.local/data/zathura_dbus_controller"
-    DATA_FILE="${DATA_DIR}/data.txt"
-    MOST_RECENT="${DATA_DIR}/most_recent.txt"
+        DATA_DIR="${HOME}/.local/data/zathura_dbus_controller"
+        DATA_FILE="${DATA_DIR}/data.txt"
+        MOST_RECENT="${DATA_DIR}/most_recent.txt"
     #-------SCRIPT-VAR------------#
-    DELIM=' :::: '
-    FILENAME=""
-
+        DELIM=' :::: '
+        FILENAME=""
+    read_histfile() {
+        while read -r -d $'\n' n ; do
+            if [[ -f "${n}" ]] ; then
+                printf '%s\n' "${n}"
+            fi
+        done < <(sqlite3 "${HFILE}" "SELECT file FROM fileinfo ORDER BY time" | tac)
+    }
     #-------UTILITY-FUNCTIONS-----#
     make_data_dir()             { mkdir -p  "${DATA_DIR}"  ; touch "${DATA_FILE}"   ;  touch "${MOST_RECENT}"; }
     reset_data_dir()            { trash-put "${DATA_FILE}" ; make_data_dir          ; }
@@ -61,19 +70,29 @@ script_main() (
     #-------COMMANDS--------------#
     toggle_recolor()            { exec_command "$(get_most_recent)" "set recolor"; }
     open_file()                 {
-        exec_command "$(get_most_recent)" "open ${1}"
+        exec_command "$(get_most_recent)" "open '${1}'"
     }
 
     #-------DMENU-----------------#
     dmenu_get_filename()        { get_filenames | "${DMENU_SCRIPT}"; }
     dmenu_open_file()           {
-        if [[ "${#BUSLIST[@]}" -le 0 ]] || [[ "${1:-}" = 'new' ]] ; then
-            zathura --fork "$(fd . -e mobi -e pdf -e epub "${HOME}" | "${DMENU_SCRIPT}")"
+        local f
+        if [[ "${1:-}" = 'history' ]] ; then
+            echo "HERE"
+            shift 1
+            f="$(read_histfile | "${DMENU_SCRIPT}")"
+        else
+            f="$(fd . -u -e pdf -e epub -e azw2 -e djvu -e mobi "${HOME}" | "${DMENU_SCRIPT}")"
+        fi
+        if [[ ! -f "${f}" ]] ; then
+            return 0
+        elif [[ "${#BUSLIST[@]}" -le 0 ]] || [[ "${1:-}" = 'new' ]] ; then
+            zathura --fork "${f}"
             sleep 2 #sketchy solution
             get_buslist
             check_most_recent "reset_recent"
         else
-            open_file "$(fd . -e mobi -e pdf -e epub "${HOME}" | "${DMENU_SCRIPT}")"
+            open_file "${f}"
         fi
     }
 
@@ -117,6 +136,8 @@ script_main() (
             ;;  -c|--current)       most_recent_filename
             ;;  -p|--pagenumber)    get_page_number
             ;;  -r|--recolor)       toggle_recolor
+            ;;  -h|--history)       dmenu_open_file "history"
+            ;;  -H|--history-new)   dmenu_open_file "history" "new"
             ;;  -o|--open)          dmenu_open_file
             ;;  -O|--open-new)      dmenu_open_file "new"
             ;;  -[0-9]*)            set_page_number "${1/-/}"
