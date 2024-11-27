@@ -17,7 +17,7 @@ help_func() {
 }
 
 start_emacs_daemon() {
-    emacs --daemon
+    emacs --daemon & disown
     #="${EMACS_SOCKET_NAME}"
     xmessage -timeout 4 "emacs started" & disown
 }
