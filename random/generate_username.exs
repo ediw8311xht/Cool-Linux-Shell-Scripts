@@ -47,7 +47,7 @@ end
 
 defmodule Main do
     @file_path          Path.absname(__DIR__)
-    @default_length     5
+    @default_length     3
     @default_file       "#{@file_path}/Resources/Txt/top_1000_nouns.txt"
     @default_capital    true
     @keys               [length: @default_length, file: @default_file,  capital: @default_capital]
@@ -61,7 +61,7 @@ defmodule Main do
 
     def handle_args([]), do: @keys
     def handle_args(args) do
-        Enum.reduce(0..min(length(args) - 1, 2), @keys, fn x, acc ->
+        Enum.reduce(0..min(length(args) - 1, 1), @keys, fn x, acc ->
             arg = Enum.at(args, x)
             {key, _val} = Enum.at(acc, x)
             replace = {key, elem(@handle, x).(arg)}
