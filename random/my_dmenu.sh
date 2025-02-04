@@ -17,12 +17,14 @@ main() {
 -fn 'InputMono:style=Regular:pixelsize=12:antialias=true:autohint=true'
 EOF
     )
-	local dmenu_command='dmenu'
+	local DMENU_COMMAND='dmenu'
 	local PROMPT=">"
+    local i=0
     #local R_STDIN
-    while [[ "${#}" -gt 0 ]] ; do
+    while [[ "${#}" -gt 0 ]] && [[ $((i++)) -lt 100 ]] ; do
 		case "${1,,}" in
             -run) j4-dmenu-desktop --dmenu="dmenu -p '${PROMPT}' ${DM_SETTINGS}"; return
+        ;;  -run-def) dmenu_run -p "${PROMPT}" $(tr "'" ' ' <<< "${DM_SETTINGS}"); return
         ;;  -p|-prompt) PROMPT="${2}"; shift 2
         #;;  -i|--stdin) read -r -p -t 5 R_STDIN; shift 1
         #;;  *) R_STDIN="${*}"; break
@@ -30,7 +32,7 @@ EOF
 		;;  esac
     done
 
-    "${dmenu_command}" -p "${PROMPT}" $(tr "'" ' ' <<< "${DM_SETTINGS}")
+    "${DMENU_COMMAND}" -p "${PROMPT}" $(tr "'" ' ' <<< "${DM_SETTINGS}")
 }
 
 main "${@}"
