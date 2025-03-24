@@ -55,7 +55,6 @@ getter() {
 
     cd "${OUT_DIR}" || { echo "Issue cd'ing into OUT_DIR: '${OUT_DIR}'; Exiting..."; exit 1; }
     while read -r -d $'\n' i ; do
-        ((count++))
         if [[ "${USING}" = "ytdl" ]] ; then
             with_ytdl "${i}"
         elif [[ "${USING}" = "wget" ]] ; then
@@ -64,10 +63,11 @@ getter() {
             with_curl "${i}"
         elif [[ "${USING}" = "weasyprint" ]] ; then
             with_weasyprint "${i}" "${count}"
-        else
-            echo "valid command not found"; exit 1
         fi
+        ((count++))
     done < "${INPUT_FILE}"
+    echo "--------------------------"
+    echo "${count} files downloaded."
 }
 
 max_length() {
