@@ -34,7 +34,7 @@ main() {
     if [[ -f "${info_file}" ]] ; then
         xargs g++ -std="c++20" @"${info_file}" -o "${outfile}" <<< "${run_file}"
     else
-        xargs g++ -std="c++20" @"${info_file}" -o "${outfile}" <<< "${run_file}"
+        xargs g++ -std="c++20" -o "${outfile}" <<< "${run_file}"
     fi
 
 
