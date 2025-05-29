@@ -33,7 +33,7 @@ polybar_manipulate_main() (
     }
     select_dmenu() {
         local choice=""
-        if choice="$( find "${CONFIG_DIR}" -type f -printf "%f\n" | "${DMENU_SCRIPT}" )" ; then
+        if choice="$( find "${CONFIG_DIR}" -mindepth 1 -maxdepth 1 -type f -printf "%f\n" | "${DMENU_SCRIPT}" )" ; then
             config_select "${choice}"
         fi
     }
