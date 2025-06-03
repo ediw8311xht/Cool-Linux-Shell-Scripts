@@ -11,11 +11,12 @@ ubluetoggle() {
     fi
 
     local DEVMAC="${BLUETOOTH_DEVICE_1_MAC}"
-    local IS_CON="disconnect"
+    local IS_CON="connect"
     local OUT=""
+    local TIMEOUT="5"
 
     { bluetoothctl info | grep "Missing device address argument"; } ||
-        IS_CON="connect"
+        IS_CON="disconnect"
 
     if ! OUT="$(timeout "${TIMEOUT}" bluetoothctl ${IS_CON} "${DEVMAC}")" ; then
         c_send "ubluetoggle.sh" "Error: ${OUT}"
