@@ -1,39 +1,28 @@
 #!/bin/bash
 
 c_send() {
-	TIME="${4-"4000"}"; ICON="${8:-"$HOME/bin/Resources/Images/bluetooth.png"}"
-	if [[ "${3}" = "E" ]] ; then MBG="${5:-"#000000"}"; MFG="${6-"#FF0000"}"; MFR="${7-"#FF0000"}"; 
-	else 					     MBG="${5:-"#000000"}"; MFG="${6-"#00FF00"}"; MFR="${7-"#000000"}"; fi
-	notify-send -i "${ICON}"\
-				-h string:bgcolor:"${MBG}"\
-				-h string:fgcolor:"${MFG}"\
-				-h string:frcolor:"${MFR}"\
-				-t "${TIME}"\
-				"${1}" "${2}" 
+    local ICON="${HOME}/bin/Resources/Images/bluetooth.png"
+    notify-send -i "${ICON}" -a "${1}" "${@:2}"
+}
+ubluetoggle() {
+    local DEVMAC="${BLUETOOTH_DEVICE_1_MAC}"
+    local IS_CON="disconnect"
+
+
+    if ! systemctl --quiet is-active bluetooth ; then
+        c_send "ubluetoggle.sh" "Bluetooth not enabled"
+    fi
+
+    if bluetoothctl info | grep "Missing device address argument" ; then
+        IS_CON="connect"
+    fi
+
+
+    if ! G="$(timeout "${TIMEOUT}" bluetoothctl ${IS_CON} "${DEVMAC}")" ; then
+        c_send "ubluetoggle.sh" "Error: ${G}"
+    else
+        c_send "ubluetoggle.sh" "Success: ${G}"
+    fi
 }
 
-/usr/bin/bluetooth on
-
-if [[ "$?" -ne "0" ]] ; then c_send "ubluetoggle.sh" "> '/usr/bin/bluetooth on'" "E"; exit 1; fi
-bluetoothctl power on
-if [[ "$?" -ne "0" ]] ; then c_send "ubluetoggle.sh" "> 'bluetoothctl power on'" "E"; exit 1; fi
-
-DEVMAC="${BLUETOOTH_DEVICE_1_MAC}"
-
-echo "HI"
-echo "${DEVMAC}"
-
-ISMIS=$(bluetoothctl info | grep "Missing device address argument")
-
-if [[ -n "${ISMIS}" ]]; then
-	G="$(timeout "${2:-5}" bluetoothctl   connect 	  "${DEVMAC}")"
-else                
-	G="$(timeout "${2:-5}" bluetoothctl   disconnect 	  "${DEVMAC}")"
-fi
-
-
-if [[ "$?" -eq "124" ]] ; then
-	c_send "ubluetoggle.sh" "Timeout > 'bluetoothctl conn/discon ${DEVMAC}'"$'\n'"${G}" "E"
-else
-	c_send "ubluetoggle.sh" "${G}"
-fi
+ubluetoggle "${@}"

@@ -15,7 +15,7 @@ rg_fzf_func() {
         --bind "ctrl-b:become(  printf '%s\0' 'browser' {1}     )"
         --bind "ctrl-l:become(  printf '%s\0' 'lf'      {1}     )"
         --bind "ctrl-x:execute( printf '%s\0' 'xdg'     {1}     )"
-        --bind "ctrl-a:become(  printf '%s\0' 'cd'      {1}     )"
+        --bind "ctrl-c:become(  printf '%s\0' 'cd'      {1}     )"
         --bind "enter:become(   printf '%s\0' 'edit'    {1} {2} )"
         --delimiter :
         --preview 'bat --color=always {1} --highlight-line {2}'
