@@ -5,24 +5,24 @@ c_send() {
     notify-send -i "${ICON}" -a "${1}" "${@:2}"
 }
 ubluetoggle() {
-    local DEVMAC="${BLUETOOTH_DEVICE_1_MAC}"
-    local IS_CON="disconnect"
-
-
     if ! systemctl --quiet is-active bluetooth ; then
         c_send "ubluetoggle.sh" "Bluetooth not enabled"
+        return 1
     fi
 
-    if bluetoothctl info | grep "Missing device address argument" ; then
+    local DEVMAC="${BLUETOOTH_DEVICE_1_MAC}"
+    local IS_CON="disconnect"
+    local OUT=""
+
+    { bluetoothctl info | grep "Missing device address argument"; } ||
         IS_CON="connect"
-    fi
 
-
-    if ! G="$(timeout "${TIMEOUT}" bluetoothctl ${IS_CON} "${DEVMAC}")" ; then
-        c_send "ubluetoggle.sh" "Error: ${G}"
-    else
-        c_send "ubluetoggle.sh" "Success: ${G}"
+    if ! OUT="$(timeout "${TIMEOUT}" bluetoothctl ${IS_CON} "${DEVMAC}")" ; then
+        c_send "ubluetoggle.sh" "Error: ${OUT}"
+        return 1
     fi
+    c_send "ubluetoggle.sh" "Success: ${OUT}"
+    return 0
 }
 
 ubluetoggle "${@}"
