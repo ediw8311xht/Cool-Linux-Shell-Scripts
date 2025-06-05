@@ -2,13 +2,14 @@
 
 rg_fzf_func() {
 
-    local lf_script="${HOME}/bin/cd_from_lf.sh"
+    local RG_PREFIX="rg --no-search-zip --column --line-number --no-heading --color=always --smart-case"
+    if [[ "${1}" =~ [-][u]{1,3} ]] ; then RG_PREFIX+=" ${1}"; shift 1; fi
+    local -r lf_script="${HOME}/bin/cd_from_lf.sh"
     local outarr
     local dir
     local file
-    local RG_PREFIX="rg --no-search-zip --column --line-number --no-heading --color=always --smart-case"
-    local INITIAL_QUERY="${*:-}"
-    local OPTIONS=(
+    local -r INITIAL_QUERY="${*:-}"
+    local -r OPTIONS=(
         --ansi --disabled --query "$INITIAL_QUERY"
         --bind "start:reload:$RG_PREFIX {q}"
         --bind "change:reload:sleep 0.1; $RG_PREFIX {q} || true"

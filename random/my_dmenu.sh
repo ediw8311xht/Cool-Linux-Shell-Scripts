@@ -23,16 +23,18 @@ EOF
     #local R_STDIN
     while [[ "${#}" -gt 0 ]] && [[ $((i++)) -lt 100 ]] ; do
 		case "${1,,}" in
-            -run) j4-dmenu-desktop --dmenu="dmenu -p '${PROMPT}' ${DM_SETTINGS}"; return
-        ;;  -run-def) dmenu_run -p "${PROMPT}" $(tr "'" ' ' <<< "${DM_SETTINGS}"); return
+                 -run) j4-dmenu-desktop --dmenu="dmenu -p '${PROMPT}' ${DM_SETTINGS}"; return
+        ;;   -run-def) DMENU_COMMAND="dmenu_run" 
         ;;  -p|-prompt) PROMPT="${2}"; shift 2
         #;;  -i|--stdin) read -r -p -t 5 R_STDIN; shift 1
         #;;  *) R_STDIN="${*}"; break
         ;;  *) break
 		;;  esac
     done
-
-    "${DMENU_COMMAND}" -p "${PROMPT}" $(tr "'" ' ' <<< "${DM_SETTINGS}")
+    #shellcheck disable=SC2046
+    sed "s|$HOME|~|" \
+        | "${DMENU_COMMAND}" -p "${PROMPT}" $(tr "'" ' ' <<< "${DM_SETTINGS}") \
+        | sed "s|\~|$HOME|"
 }
 
 main "${@}"
