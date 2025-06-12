@@ -3,7 +3,7 @@
 
 # prevent from running forever
 
-function getfrom() {
+getfrom() {
     local a
     a="$(gzip -k -d "${1}" -c | cut -d ',' -f 5)"
     echo "${a}"
@@ -17,7 +17,7 @@ function getfrom() {
     fi
 }
 
-function myfunc() {
+myfunc() {
     wget -S                                             \
         --header='Accept: */*'                          \
         --header='Accept-Encoding: gzip, deflate, br'   \
@@ -40,7 +40,7 @@ function myfunc() {
     || return 1
 }
 
-function main() {
+main() {
     if ! [[ "${1}" =~ (AG|AU|PD|PT) ]] ; then
         return 1
     fi

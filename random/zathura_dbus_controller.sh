@@ -4,7 +4,7 @@
 # shellcheck disable=SC2155
 script_main() ( #------------------ subshell begin ------------------------#
 #-------UTILITY-FUNCTIONS-----#
-    msg()                       { notify-send "${SCRIPT_NAME}$(printf "\n    %s"  "${@}")"; }
+    msg()                       { notify-send "${SCRIPT_NAME}$(printf "\n%s"  "${@}")"; }
     my_join()                   {  local IFS="${1}"; echo "${*:2}"; }
 #----------------------------------------------------------#
 #-------VARS-----------------------------------------------#
@@ -92,7 +92,11 @@ script_main() ( #------------------ subshell begin ------------------------#
 #-------DMENU-----------------#
     dmenu_get_filename()        { get_filenames | "${DMENU_SCRIPT}"; }
     update_database() {
-        updatedb -l 0 -U "${HOME}" -o "${CACHE_DATABASE}"
+        if updatedb -l 0 -U "${HOME}" -o "${CACHE_DATABASE}" ; then
+            msg "Updated db" "${CACHE_DATABASE}"
+        else
+            msg "Error updating db"
+        fi
     }
     find_t()                    {
         # shellcheck disable=SC2068
@@ -114,7 +118,6 @@ script_main() ( #------------------ subshell begin ------------------------#
         fi
 
         if ! [[ -f "${my_file}" ]] ; then
-            msg "f"
             return 0
         elif [[ "${#BUSLIST[@]}" -le 0 ]] || [[ "${1:-}" = 'new' ]] ; then
             zathura --fork "${my_file}"
