@@ -5,7 +5,7 @@ main() {
     # local DM_SETTINGS=()
     # read -r -d '' DM_SETTINGS < <(tr '\n' ' ' <<EOF
     # mapfile -d $'\n ' DM_SETTINGS < <(tr '\n' ' ' <<EOF
-    local DM_SETTINGS="${HOME}/.dmenurc"
+    local DM_SETTINGS="${XDG_CONFIG_HOME}/dmenu/dmenurc"
     # shellcheck source=/dev/null
     source "${DM_SETTINGS}"
     # provides DMENU_OPTIONS && DMENU_OPTIONS_G
