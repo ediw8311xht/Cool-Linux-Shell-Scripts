@@ -8,6 +8,8 @@ local CONFIG_DIR="$HOME/.config/polybar/configs/"
 local CONFIG_INI="$HOME/.config/polybar/config.ini"
 local DMENU_SCRIPT="$HOME/bin/my_dmenu.sh"
 local DEFAULT_BAR="secondarybar"
+local LOGS="${XDG_DATA_HOME}/polybar_manipulate/"
+mkdir -p "${LOGS}" || notify-send -a "Polybar Manipulate" "Error making '${LOGS}' directory"
 
 declare -A BARS
 BARS["i3wm.primary_monitor"]="primarybar"
@@ -15,11 +17,16 @@ BARS["i3wm.other_monitor_1"]="secondarybar"
 BARS["i3wm.other_monitor_2"]="secondarybar"
 
 xrec_get() { xrdb -get "${1}" | grep "."; }
+xrec_get_pid() { xrdb -get "${1}_pid" | grep -Pox '\s*[0-9]+\s*'; }
 xrec_set() { xrdb -override <<< "${1}"; }
 xrec_query_parse() { xrdb -query | sed --sandbox -nE "s/${1}/${2}/p"; }
 
 xrec_get_mons() {
-    xrec_query_parse '^(i3wm[.][^:]*monitor(_[0-9]+)?)[:]\s*(.*)\s*$' '\1 \3'
+    if [[ "${1}" -eq 1 ]] ; then
+        xrec_query_parse '^(i3wm[.][^:]*monitor(_[0-9]+)?)[:].*' '\1'
+    else
+        xrec_query_parse '^(i3wm[.][^:]*monitor(_[0-9]+)?)[:]\s*(.*)\s*$' '\1 \3'
+    fi
 }
 
 xrec_set_none() {
@@ -29,28 +36,24 @@ xrec_set_none() {
 
 pl_kill() {
     local OTHER
-    if OTHER="$(xrdb -get "${1}_pid" | grep -Pox '\s*[0-9]+\s*')" ; then
+    if OTHER="$(xrec_get_pid "${1}")" ; then
         xrec_set "${1}_pid: NONE"
         polybar-msg -p "${OTHER}" "cmd" "quit" 
-        return $?
     else
         return 1
     fi
 }
-
-pl_toggle_dmenu() { 
-    local NAME VALUE
-    if read -r NAME VALUE < <( "${DMENU_SCRIPT}" < <(xrec_get_mons) ) ; then
-        toggle_polybar "${NAME}" "${VALUE}"
-    else
-        return 1
-    fi
-}
-
 pl_kill_all() { polybar-msg "cmd" "quit" && xrec_set_none; }
-
+pl_toggle_dmenu() { 
+    local NAME _VALUE
+    if read -r NAME < <( "${DMENU_SCRIPT}" < <(xrec_get_mons 1; echo "all") ) ; then
+        toggle_polybar "${NAME}"
+    else
+        return 1
+    fi
+}
 pl_launch() {
-    MONITOR="${1}" nohup polybar --reload "${BARS["${2}"]:-"${DEFAULT_BAR}"}" > /dev/null & disown
+    MONITOR="${1}" nohup polybar --reload "${BARS["${2}"]:-"${DEFAULT_BAR}"}" & disown
     xrec_set "${2}_pid: ${!}"
 }
 
@@ -74,10 +77,8 @@ config_select() {
     fi
 }
 toggle_polybar() {
-    [[ "${1,,}" = 'all' ]] && { pl_kill_all || pl_launch_all; return $?; }
-    echo "${1} ${2}"
-    pl_kill "${1}" || pl_launch "${2}" "${1}"
-
+    if [[ "${1,,}" = 'all' ]] ; then polybar-msg cmd toggle
+    else polybar-msg -p "$(xrec_get_pid "${1}")" cmd toggle ; fi
 }
 select_dmenu() {
     local choice=""
@@ -116,7 +117,7 @@ handle_args() {
     done
 }
 
-handle_args "${@}"
+handle_args "${@}"  &>> "${LOGS}/log_$(date '+%s')" 
 
 
 } #---------------------------- END ----------------------------#
