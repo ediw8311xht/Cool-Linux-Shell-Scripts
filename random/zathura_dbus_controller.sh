@@ -21,8 +21,8 @@ script_main() ( #------------------ subshell begin ------------------------#
     done
     # if command -v plocate ; then local -r 
     #local -r FIND_COMMAND="$(type -P plocate || type -P fd || type -P find)"
-    local -r ZATHURA_DATA_DIR="${XDG_DATA_HOME:-"${HOME}/.local/share"}"
-    local -r HFILE="${ZATHURA_DATA_DIR}/zathura/bookmarks.sqlite"
+    local -r ZATHURA_DATA_DIR="${XDG_DATA_HOME:-"${HOME}/.local/share"}/zathura"
+    local -r HFILE="${ZATHURA_DATA_DIR}/bookmarks.sqlite"
     local -r DMENU_SCRIPT="${HOME}/bin/my_dmenu.sh"
     if ! [[ -f "${DMENU_SCRIPT}" ]] ; then DMENU_SCRIPT="dmenu"; fi
     local -r SCRIPT_NAME="$(basename "${0}")"
@@ -31,9 +31,9 @@ script_main() ( #------------------ subshell begin ------------------------#
     local -r APP_ORG='/org/pwmt/zathura'
     local -r APP_INT='org.pwmt.zathura'
 #-------DATA------------------#
-    local -r DATA_DIR="${HOME}/.local/data/zathura_dbus_controller"
+    local -r DATA_DIR="${XDG_DATA_HOME}/zathura_dbus_controller"
     local -r DATA_FILE="${DATA_DIR}/data.txt"
-    local -r CACHE_DATABASE="${HOME}/.local/data/plocate/home.db"
+    local -r CACHE_DATABASE="${XDG_DATA_HOME}/plocate/home.db"
     local -r MOST_RECENT="${DATA_DIR}/most_recent.txt"
 #-------DELIM-----------------#
     local -r DELIM=' :::: '
