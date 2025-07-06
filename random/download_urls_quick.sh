@@ -10,12 +10,14 @@ OUT_DIR="OUT_DIR_$(date +%s)/"
 COOKIES="cookies.txt"
 REDIRECTS='0'
 USING="curl"
+NO_OUTPUT=0
 
 CURL_ARGS=(
       --max-redirs "${REDIRECTS}"
       --remote-header-name
       --remote-name
       --location
+      --remove-on-error
 )
 
 YT_DLP_ARGS=(
@@ -117,6 +119,7 @@ handle_args() {
     ;; -y)          USING="ytdl"       ; shift 1
     ;; -w)          USING="wget"       ; shift 1
     ;; -wp)         USING="weasyprint" ; shift 1
+    ;; -no)     NO_OUTPUT=1            ; shift 1
     ;; -c)   if [[ -f "${2}" ]]  ; then COOKIES="${2}"        ; shift 2
              else                       COOKIES="cookies.txt" ; shift 1; fi
     ;; -*)   echo "Unrecognized Option/Flag"; exit 1

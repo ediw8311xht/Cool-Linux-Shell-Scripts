@@ -7,15 +7,15 @@ main() {
     # mapfile -d $'\n ' DM_SETTINGS < <(tr '\n' ' ' <<EOF
     local DM_SETTINGS="${XDG_CONFIG_HOME}/dmenu/dmenurc"
     # shellcheck source=/dev/null
-    source "${DM_SETTINGS}"
     # provides DMENU_OPTIONS && DMENU_OPTIONS_G
+    source "${DM_SETTINGS}"
 	local DMENU_COMMAND='dmenu'
 	local PROMPT=">"
     local i=0
     #local R_STDIN
     while [[ "${#}" -gt 0 ]] ; do
 		case "${1,,}" in
-                 -run) timeout -k 10 10 j4-dmenu-desktop --dmenu="dmenu -p '${PROMPT}' ${DMENU_OPTIONS_G}"; return
+                 -run) j4-dmenu-desktop --dmenu="dmenu -p '${PROMPT}' ${DMENU_OPTIONS_G}"; return
         ;;   -run-def) DMENU_COMMAND="dmenu_run" ; shift 1
         ;;  -p|-prompt) PROMPT="${2}"; shift 2
         #;;  -i|--stdin) read -r -p -t 5 R_STDIN; shift 1
@@ -24,7 +24,7 @@ main() {
 		;;  esac
     done
     #shellcheck disable=SC2046,SC2086
-    timeout -k 10 10 "${DMENU_COMMAND}" -p "${PROMPT}" ${DMENU_OPTIONS} \
+    timeout -k 30 30 "${DMENU_COMMAND}" -p "${PROMPT}" ${DMENU_OPTIONS} \
         < <( sed -e "s|$HOME|~|" /dev/stdin) \
         | sed "s|\~|$HOME|"
 }

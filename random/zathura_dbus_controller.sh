@@ -102,9 +102,8 @@ script_main() ( #------------------ subshell begin ------------------------#
         # shellcheck disable=SC2068
         case "${FIND_COMMAND}" in
                  plocate) plocate -b --regex "[.]($(my_join "|" "${EXTS_ARR[@]}" ))$" -d "${CACHE_DATABASE}"
-            ;;        fd) fd . -u "${EXTS_ARR[@]/#/--extension=}" "${HOME}"
             ;;      find) # shellcheck disable=SC2046,SC2001
-                          find "${HOME}" -hidden -iname $(sed 's/ / -o iname /g' <<< "${EXTS_ARR[*]}") "${HOME}"
+                          find "${HOME}" -hidden -iname $(sed 's/ / -o iname /g' <<< "${EXTS_ARR[*]}") "${HOME}" 2>/dev/null
             ;;         *) msg "Error" && exit 1
         esac
     }
