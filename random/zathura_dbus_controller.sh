@@ -54,7 +54,7 @@ script_main() ( #------------------ subshell begin ------------------------#
             fi
         done < <(sqlite3 "${HFILE}" "SELECT file FROM fileinfo ORDER BY time" | tac)
     }
-    make_data_dir()  { mkdir -p  "${DATA_DIR}" ; touch "${DATA_FILE}" touch "${MOST_RECENT}" ; }
+    make_data_dir()  { mkdir -p  "${DATA_DIR}" ; touch "${DATA_FILE}"; touch "${MOST_RECENT}" ; }
     reset_data_dir() { trash-put "${DATA_DIR}" ; make_data_dir ; }
         # shellcheck disable=SC2295
     parse_busname()             { echo "${1#*${DELIM}}";  }
