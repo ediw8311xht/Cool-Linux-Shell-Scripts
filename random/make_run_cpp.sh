@@ -1,4 +1,4 @@
-#!/usr/bin/env /usr/bin/bash
+#!/usr/bin/env bash
 
 main_make_run_cpp() {
     local outfile="/tmp/cpp_tmp.out"

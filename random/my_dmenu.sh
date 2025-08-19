@@ -7,8 +7,8 @@ main() {
     # mapfile -d $'\n ' DM_SETTINGS < <(tr '\n' ' ' <<EOF
     local DM_SETTINGS="${XDG_CONFIG_HOME}/dmenu/dmenurc"
     # shellcheck source=/dev/null
-    # provides DMENU_OPTIONS && DMENU_OPTIONS_G
     source "${DM_SETTINGS}"
+    # provides DMENU_OPTIONS && DMENU_OPTIONS_G
 	local DMENU_COMMAND='dmenu'
 	local PROMPT=">"
     local i=0
@@ -24,7 +24,7 @@ main() {
 		;;  esac
     done
     #shellcheck disable=SC2046,SC2086
-    timeout -k 30 30 "${DMENU_COMMAND}" -p "${PROMPT}" ${DMENU_OPTIONS} \
+    timeout -k 10 10 "${DMENU_COMMAND}" -p "${PROMPT}" ${DMENU_OPTIONS} \
         < <( sed -e "s|$HOME|~|" /dev/stdin) \
         | sed "s|\~|$HOME|"
 }

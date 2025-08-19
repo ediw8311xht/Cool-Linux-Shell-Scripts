@@ -9,6 +9,8 @@ L_DIRS=()
 L_PICS=()
 SILENT='0'
 DATA_FILE="$HOME/bin/Data/xwallautoDATA.txt"
+MY_DMENU="${DMENU_SCRIPT:-dmenu}"
+IS_DM=''
 
 my_printer() {
     printf "%3d\t%s" "${@}"
@@ -57,9 +59,14 @@ dirs_with_pics() {
     find "${MAIN_DIR}" -mindepth 2 -maxdepth 2 -iname '*.jpg' -printf '%h\n' | sort -u
 }
 
+dmenu_set() {
+    "${MY_DMENU}" < <( find "${MAIN_DIR}" -mindepth 2 -maxdepth 2  )
+}
+
 handle_args() {
     case "${1,,}" in
-           left) PICPOS=0 ; ((DPOS--))
+          dmenu) IS_DM="$(dmenu_set)"
+    ;;     left) PICPOS=0 ; ((DPOS--))
     ;;    right) PICPOS=0 ; ((DPOS++))
     ;;       up) ((PICPOS++))
     ;;     down) ((PICPOS--))
@@ -82,7 +89,11 @@ main() {
     [[ "$(( PICPOS %= "${#L_PICS[@]}" ))" -ge 0 ]] || (( PICPOS += "${#L_PICS[@]}" ))
 
     #-----CHANGE-WALLPAPER---------------------------------------------------------#
-    xwallpaper "${PARGS[@]:---focus}" "${L_PICS[ "${PICPOS}" ]}"
+    if [[ -f "${IS_DM}"  ]] ; then
+        xwallpaper "${PARGS[@]:---focus}" "${IS_DM}"
+    else 
+        xwallpaper "${PARGS[@]:---focus}" "${L_PICS[ "${PICPOS}" ]}"
+    fi
 
     #-----UPDATE-DATA-FILE---------------------------------------------------------#
     update_data_file

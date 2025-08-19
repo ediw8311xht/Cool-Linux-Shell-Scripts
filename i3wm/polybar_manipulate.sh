@@ -13,8 +13,8 @@ mkdir -p "${LOGS}" || notify-send -a "Polybar Manipulate" "Error making '${LOGS}
 
 declare -A BARS
 BARS["i3wm.primary_monitor"]="primarybar"
-BARS["i3wm.other_monitor_1"]="secondarybar"
-BARS["i3wm.other_monitor_2"]="secondarybar"
+BARS["i3wm.other_monitor_1"]="secondbar"
+BARS["i3wm.other_monitor_2"]="thirdbar"
 
 xrec_get() { xrdb -get "${1}" | grep "."; }
 xrec_get_pid() { xrdb -get "${1}_pid" | grep -Pox '\s*[0-9]+\s*'; }
