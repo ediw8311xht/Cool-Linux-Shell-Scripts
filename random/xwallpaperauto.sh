@@ -4,7 +4,6 @@
 ( #-START-SUBSHELL-#
 ####################
 
-IFS=$'\n'
 L_DIRS=()
 L_PICS=()
 SILENT='0'
@@ -15,9 +14,11 @@ IS_DM=''
 my_printer() {
     printf "%3d\t%s" "${@}"
 }
+
 notify_wallpaper_change() {
     local string
-    dunstctl close-all
+    # -- Uncomment this if you want to close already open notification --
+    # dunstctl close-all 
     string=(
         "xwallpaper ${PARGS[*]:---focus}"
         "$(my_printer "${DPOS}"  "${L_DIRS[DPOS]##*/}")"
