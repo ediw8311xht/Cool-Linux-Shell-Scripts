@@ -1,78 +1,49 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-####################
-( #-START-SUBSHELL-#
-####################
+i3wm_config_check() {
 
-#---------------------------------------------------------#
-#------------------------------VARIABLES------------------#
-#---------------------------------------------------------#
-TIMEOUT="3"
-CONFIG_ELSE="${HOME}/.i3/config"
-CACHE_ERROR_FILE="${HOME}/.cache/i3_error.txt"
-[[ -f "${HOME}/.i3/config" ]] || CONFIG_ELSE="${HOME}/.config/i3/config"
-FG_FONT='xft:monospace 10'
-
-#---------------------------------------------------------#
-#------------------------------FUNCTIONS------------------#
-#---------------------------------------------------------#
-ASK() {
-    timeout "${1}" i3-input -f "${FG_FONT}" -l 1 -P 'SUCCESS RELOAD RESTART i3wm? (y/n)'\
+local timeout_ask="3"
+local config_file="${XDG_CONFIG_HOME}/.i3/config"
+local error_output_file="${HOME}/.cache/i3_error.txt"
+local fg_font='xft:monospace 10'
+ask() {
+    timeout "${1}" i3-input -f "${fg_font}" -l 1 -P 'SUCCESS RELOAD RESTART i3wm? (y/n)'\
         | grep -Pi '(?<=^command = ).+$'
-    return "$?"
 }
 
-HANDLE_OPTIONS() {
-    while [[ "${1}" =~ ^- ]] ; do
-        if   [[ "${1,,}" =~ ^--noask$  ]] ; then o_NOASK="Y"
-        elif [[ "${1,,}" =~ ^--[0-9]+$ ]] ; then TIMEOUT="${1: 2}"
-        elif [[ "${1,,}" =~ ^--c$      ]] ; then
-        #---------------CONFIG
-        if ! [[ -f "${2}"        ]] ; then
-            echo "VALID CONFIG FILE NOT PROVIDED WITH --[Cc]"; exit 1
-            else
-                if   [[ "${1}" =~ --c ]] ; then
-                    CONFIG_ELSE="${2}"
-                elif [[ "${1}" =~ --C ]] ; then
-                    mv "${CONFIG_ELSE}" "$(date +'%Y_%m_%d_')${CONFIG_ELSE}"\
-                    && link "${2}" "${CONFIG_ELSE}"
-                fi
-                    shift 1
-            fi
-        fi
-        shift 1
-    done
-}
 
-LOGIC() {
-    if 	! i3 -C "${CONFIG_ELSE}"  &> "${CACHE_ERROR_FILE}" ; then
-    	i3-input -f "${FG_FONT}" -l 1 -P '!![Error in your config file]!!'
+main() {
+    if 	! i3 -C "${config_file}"  &> "${error_output_file}" ; then
+        nohup "${TERMINAL:-xterm}" -e "${EDITOR:-vim}" "${error_output_file}" &
+    	i3-input -f "${fg_font}" -l 1 -P '!![Error in your config file]!!'
     	exit 1
-    elif [[ "${o_NOASK:-"$(ASK "${TIMEOUT}")"}" =~ ^[^yY]*$ ]] ; then
-    	timeout "${TIMEOUT}" \
-       	i3-input -l 1 -f "${FG_FONT}" -P 'NOT Reloading/Restarting'; exit 0
+    elif [[ "${o_NOASK:-"$(ask "${timeout_ask}")"}" =~ ^[^yY]*$ ]] ; then
+    	timeout "${timeout_ask}" \
+       	i3-input -l 1 -f "${fg_font}" -P 'NOT Reloading/Restarting'; exit 0
     fi
 
     i3-msg 	"reload; restart"
 
-    if [[ "${TIMEOUT}" -gt "0" ]] ; then
-        timeout "${TIMEOUT}"\
-      	i3-input -l 1 -f "${FG_FONT}" -P 'Reloaded & Restarted'
+    if [[ "${timeout_ask}" -gt "0" ]] ; then
+        timeout "${timeout_ask}"\
+      	i3-input -l 1 -f "${fg_font}" -P 'Reloaded & Restarted'
     fi
 }
 
-#---------------------------------------------------------#
-#------------------------------MAIN-----------------------#
-#---------------------------------------------------------#
-main() {
-    #### FG_FONT='xft:monospace 15'
-    HANDLE_OPTIONS "$@"
-    LOGIC
+handle_args() {
+    while [[ "${1}" =~ ^- ]] ; do
+        if   [[ "${1,,}" =~ ^--noask$  ]] ; then o_NOASK="Y"
+        elif [[ "${1,,}" =~ ^--[0-9]+$ ]] ; then timeout_ask="${1: 2}"
+        elif [[ "${1}" =~ ^--c$      ]] ; then config_file="${2}"; shift 1
+        else
+            notify-send "${0}" "Invalid option '${1}'"
+        fi
+        shift 1
+    done
 }
+#### FG_FONT='xft:monospace 15'
 
-main "${@}"
+handle_args "$@"
+main
 
-####################
-) #---END-SUBSHELL-#
-####################
-
+} ; i3wm_config_check "${@}"
