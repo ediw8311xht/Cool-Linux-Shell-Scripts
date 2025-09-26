@@ -107,6 +107,13 @@ script_main() ( #------------------ subshell begin ------------------------#
             ;;         *) msg "Error" && exit 1
         esac
     }
+
+    # plocate_ebooks() {
+    #     local f
+    #     while read -r -d $'\n'  f ;  do
+    #         [[ ! -d "${f}" ]] && echo "${f}"
+    #     done < <(plocate -b --regex "[.]($(my_join "|" "${EXTS_ARR[@]}" ))$" -d "${CACHE_DATABASE}")
+    # }
     dmenu_open_file()           {
         local my_file
         if [[ "${1:-}" = 'history' ]] ; then

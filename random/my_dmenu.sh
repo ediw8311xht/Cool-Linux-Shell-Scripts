@@ -25,7 +25,7 @@ main() {
     done
     #shellcheck disable=SC2046,SC2086
     # --kill after 
-    timeout --kill-after="20" 20 "${DMENU_COMMAND}" -p "${PROMPT}" ${DMENU_OPTIONS} \
+    timeout --kill-after=50 50 "${DMENU_COMMAND}" -p "${PROMPT}" ${DMENU_OPTIONS} \
         < <( sed -e "s|$HOME|~|" /dev/stdin) \
         | sed "s|\~|$HOME|"
 }
