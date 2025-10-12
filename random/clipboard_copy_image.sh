@@ -13,7 +13,7 @@ fzf_get() {
 }
 
 screenshot_with_scrot() {
-    scrot -s - | xclip -selection clipboard -target image/png
+    scrot -f -s -l style=dash,width=1,color="green",opacity=200 -s - | xclip -selection clipboard -target image/png
 }
 clipboard_copy_image() {
     local image_to_copy=""
@@ -34,5 +34,4 @@ clipboard_copy_image() {
           < "${image_to_copy}"
 
 }
-
 clipboard_copy_image "${@}"
