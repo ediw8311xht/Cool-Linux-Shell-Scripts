@@ -12,16 +12,17 @@ fzf_get() {
     fd -tf "${image_formats[@]}" . |  fzf
 }
 
-screenshot_with_scrot() {
-    scrot -f -s -l style=dash,width=1,color="green",opacity=200 -s - | xclip -selection clipboard -target image/png
+screenshot_with_maim() {
+    timeout 10 maim --format="png" -s | tee "$HOME/.cache/screenshot_tmp/$(date '+%Y_%m_%_d__%Hh_%Mm_%Ss').png" | xclip -selection clipboard -target image/png
 }
+
 clipboard_copy_image() {
     local image_to_copy=""
     local file_type=""
     [[ "${#}" -le 0 ]] && {  echo "read the script dummy"; return 3; }
     case "${1,,}" in 
          --fzf) image_to_copy="$(fzf_get "${@:2}")" || return 1
-    ;;  --shot) screenshot_with_scrot; return $?
+    ;;  --shot) screenshot_with_maim; return $?
     ;;       *) [[ -f "${1}" ]] || return 1
                 image_to_copy="${1}"
     ;; esac
