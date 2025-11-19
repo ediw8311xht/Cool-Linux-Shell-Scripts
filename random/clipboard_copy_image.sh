@@ -13,7 +13,7 @@ fzf_get() {
 }
 
 screenshot_with_maim() {
-    timeout 10 maim --format="png" -s | tee "$HOME/.cache/screenshot_tmp/$(date '+%Y_%m_%_d__%Hh_%Mm_%Ss').png" | xclip -selection clipboard -target image/png
+    timeout 30 maim --format="png" --hidecursor -s | tee "$HOME/.cache/screenshot_tmp/$(date '+%Y_%m_%_d__%Hh_%Mm_%Ss').png" | xclip -selection clipboard -target image/png
 }
 
 clipboard_copy_image() {

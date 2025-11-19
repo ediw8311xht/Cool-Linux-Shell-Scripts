@@ -40,11 +40,10 @@ main_make_run_cpp() {
 
     handle_args "${@}"
     if [[ -f "${info_file}" ]] ; then
-        xargs g++ -std="c++20" @"${info_file}" -o "${outfile}" <<< "${run_file}"
+        xargs g++ -std="c++23" @"${info_file}" -o "${outfile}" <<< "${run_file}"
     else
-        xargs g++ -std="c++20" "${include_files[@]}" -o "${outfile}" <<< "${run_file}" 
+        xargs g++ -std="c++23" "${include_files[@]}" -o "${outfile}" <<< "${run_file}" 
     fi
-
 
     exit_code="$?"
 

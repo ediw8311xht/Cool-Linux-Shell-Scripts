@@ -21,8 +21,8 @@ handle_args() {
 
 main() {
     handle_args "${@}"
-    echo "${OPTIONS[@]}"
-    xmessage "${OPTIONS[@]}" -file - <<< "${MESSAGE[@]}"
+    # echo "${OPTIONS[@]}"
+    xmessage -geometry +80+10 "${OPTIONS[@]}" -file - <<< "${MESSAGE[@]}"
 }
 
 main "${@}"

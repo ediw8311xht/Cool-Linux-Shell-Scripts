@@ -2,6 +2,7 @@
 
 # shellcheck disable=SC2120
 main() { #---------- START ------------------#
+shopt -s extglob
 
 local BARS
 local CONFIG_DIR="$HOME/.config/polybar/configs/"
@@ -22,32 +23,45 @@ xrec_set() { xrdb -override <<< "${1}"; }
 xrec_query_parse() { xrdb -query | sed --sandbox -nE "s/${1}/${2}/p"; }
 
 xrec_get_mons() {
-    if [[ "${1}" -eq 1 ]] ; then
-        xrec_query_parse '^(i3wm[.][^:]*monitor(_[0-9]+)?)[:].*' '\1'
-    else
-        xrec_query_parse '^(i3wm[.][^:]*monitor(_[0-9]+)?)[:]\s*(.*)\s*$' '\1 \3'
-    fi
+    local reg_base='i3wm[.]primary_monitor|i3wm[.][^:]*_monitor_[0-9]+'
+    local reg_after='\s*(.*)\s*$'
+    local select='\1 \2'
+    while [[  "${#}" -gt 0 ]] ; do
+        case "${1##+([-])}" in
+              one|1) select='\1'; reg_after='(.*)'
+        ;;    two|2) select='\2'
+        ;;    other) reg_base='i3wm[.]other_monitor_[0-9]+'
+        ;;  primary) reg_base='i3wm[.]primary_monitor'
+        ;; esac
+        shift 1
+        # if [[ "${1}" -eq 1 ]] ; then
+        #     xrec_query_parse '^(i3wm[.][^:]*monitor(_[0-9]+)?)[:].*' '\1'
+        # else
+        #     xrec_query_parse '^(i3wm[.][^:]*monitor(_[0-9]+)?)[:]\s*(.*)\s*$' '\1 \3'
+        # fi
+    done
+    xrec_query_parse \
+        "$(printf '(%s)[:]%s' "${reg_base}" "${reg_after}")" \
+        "${select}"
 }
-
 xrec_set_none() {
     xrdb -override \
         < <(xrec_query_parse '^(i3wm[.][^:]*_monitor_pid[:]\s)(.*)$' '\1NONE')
 }
-
 pl_kill() {
-    local OTHER
-    if OTHER="$(xrec_get_pid "${1}")" ; then
+    local mon
+    if mon="$(xrec_get_pid "${1}")" ; then
         xrec_set "${1}_pid: NONE"
-        polybar-msg -p "${OTHER}" "cmd" "quit" 
+        polybar-msg -p "${mon}" "cmd" "quit" 
     else
         return 1
     fi
 }
 pl_kill_all() { polybar-msg "cmd" "quit" && xrec_set_none; }
 pl_toggle_dmenu() { 
-    local NAME _VALUE
-    if read -r NAME < <( "${DMENU_SCRIPT}" < <(xrec_get_mons 1; echo "all") ) ; then
-        toggle_polybar "${NAME}"
+    local name _value
+    if read -r name < <( "${DMENU_SCRIPT}" < <(echo "all"; echo "other"; xrec_get_mons -one; ) ) ; then
+        toggle_polybar "${name}"
     else
         return 1
     fi
@@ -77,8 +91,15 @@ config_select() {
     fi
 }
 toggle_polybar() {
-    if [[ "${1,,}" = 'all' ]] ; then polybar-msg cmd toggle
-    else polybar-msg -p "$(xrec_get_pid "${1}")" cmd toggle ; fi
+    case "${1,,}" in
+        all) polybar-msg cmd toggle 
+    ;;  other)
+        local mon
+        while read -r -d $'\n' mon ; do
+            polybar-msg -p "$(xrec_get_pid "${mon}")" cmd toggle
+        done < <(xrec_get_mons -one other )
+    ;;      *) polybar-msg -p "$(xrec_get_pid "${1}")" cmd toggle
+    ;; esac
 }
 select_dmenu() {
     local choice=""
@@ -118,7 +139,6 @@ handle_args() {
 }
 
 handle_args "${@}"  &>> "${LOGS}/log_$(date '+%s')" 
-
 } #---------------------------- END ----------------------------#
 
 main "${@}"

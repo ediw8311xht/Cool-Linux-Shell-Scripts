@@ -16,9 +16,9 @@ shut_g() {
     #save_bash_history
     trash-put "/tmp/tmplf.*"
     pkill arbtt
-    while [[ "${count}" -lt "${max_iterations}" ]] && ps ax | grep -qPi 'd[e]luged' ; do
+    while [[ count++ -lt "${max_iterations}" ]] && ps ax | grep -qPi 'd[e]luged' ; do
         killall 'deluged'
-        sleep 1
+        sleep 0.5
     done
     i3-msg 'exit'
 }
